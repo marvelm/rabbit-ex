@@ -5,6 +5,11 @@ defmodule Rabbit.VideoChannel do
     {:ok, socket}
   end
 
+  def handle_in("ping", _, socket) do
+    push socket, "pong", %{}
+    {:noreply, socket}
+  end
+
   def handle_in("play", %{"currentTime" => time}, socket) do
     broadcast_from! socket, "play", %{currentTime: time}
     {:noreply, socket}

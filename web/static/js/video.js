@@ -121,19 +121,18 @@ export var run = function() {
   $(video.resize);
 
   // Channel stuff
-
   video.streamId = window.location.href
     .split('/').pop();
   let channel = socket.channel('video:' + video.streamId, {})
   video.channel = channel
 
   channel.on('play', payload => {
-    video.currentTime = payload.currentTime
+    video.currentTime = payload.currentTime + video.latency
     video.play()
   })
   video.onplay = () => {
     if (video.controlling)
-      channel.push('play', {currentTime: video.currentTime})
+      channel.push('play', {currentTime: video.currentTime + video.latency})
   }
 
   channel.on('pause', payload => {
@@ -145,13 +144,19 @@ export var run = function() {
       channel.push('pause', {currentTime: video.currentTime})
   }
 
-  channel.on('pong', () => {
-    console.log('pong')
-  })
-
   channel.join()
     .receive('ok', resp => { console.log('Joined successfully', resp) })
     .receive('error', resp => { console.log('Unable to join', resp) })
+
+  var startTime
+  function ping() {
+    startTime = Date.now()
+    channel.push('ping', {})
+  }
+  setInterval(ping, 1000)
+  channel.on('pong', () => {
+    video.latency = (Date.now() - startTime) / 1000 // ms to s
+  })
 
   // Displays
   let $controller = $('#controller')
@@ -179,12 +184,16 @@ export var run = function() {
       humanizeSeconds(video.duration - video.currentTime) + ' remaining')
   })
 
-  $controller.click(() => {
-    video.controlling = !video.controlling
+  function renderController() {
     if (video.controlling) {
       $controller.text('You are controlling the video')
     } else {
       $controller.text('Take control')
     }
+  }
+
+  $controller.click(() => {
+    video.controlling = !video.controlling
+    renderController()
   })
 }
