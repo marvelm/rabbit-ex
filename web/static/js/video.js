@@ -201,4 +201,16 @@ export var run = function() {
   channel.on('taken_control', () => {
     setController(false)
   })
+
+  video.partnerTime = 0;
+  setInterval(() => {
+    channel.push('time_update', {currentTime: video.currentTime + video.latency})
+  }, 500)
+  channel.on('time_update', payload => {
+    video.partnerTime = payload.currentTime + video.latency
+    // delta 3s
+    if (video.partnerTime > video.currentTime + 3 || video.partnerTime < video.currentTime - 3) {
+      video.displayCaption('Out of sync')
+    }
+  })
 }
