@@ -3,3 +3,6 @@
     controls>
 </div>
 <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+<script>
+  $(require("web/static/js/video").run);
+</script>
