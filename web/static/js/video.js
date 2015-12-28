@@ -15,10 +15,11 @@ function polyfill(video) {
   }
 }
 
+export var video = document.getElementsByTagName('video')[0];
+var $video = $(video);
+var $window = $(window);
+
 export var run = function() {
-  var video = document.getElementsByTagName('video')[0];
-  var $video = $(video);
-  var $window = $(window);
 
   polyfill(video);
 
@@ -61,6 +62,7 @@ export var run = function() {
   };
 
   // To slow down fast forwarding with the keyboard
+  // Debouncing
   var keyboardDelay = false;
   setInterval(function() {
     keyboardDelay = false;
@@ -87,14 +89,14 @@ export var run = function() {
        e.preventDefault();
        break;
      case keys.arrow.up:
-       if (video.volume + 0.1 >= 1)
+       if (video.volume + video.volumeStep >= 1)
          video.volume = 1;
        else
          video.volume += video.volumeStep;
        e.preventDefault();
        break;
      case keys.arrow.down:
-       if (video.volume - 0.1 <= 0)
+       if (video.volume - video.volumeStep <= 0)
          video.volume = 0;
        else
          video.volume -= video.volumeStep;
