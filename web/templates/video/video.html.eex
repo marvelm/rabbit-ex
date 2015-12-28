@@ -1,0 +1,5 @@
+<div>
+  <video src="/stream/<%= @stream_id %>"
+    controls>
+</div>
+<script src="<%= static_path(@conn, "/js/app.js") %>"></script>

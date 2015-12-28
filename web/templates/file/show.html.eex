@@ -1,0 +1,23 @@
+<h2>Show file</h2>
+
+<ul>
+
+  <li>
+    <strong>Url:</strong>
+    <%= @file.url %>
+  </li>
+
+  <li>
+    <strong>Location:</strong>
+    <%= @file.location %>
+  </li>
+
+  <li>
+    <strong>Content type:</strong>
+    <%= @file.content_type %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: file_path(@conn, :edit, @file) %>
+<%= link "Back", to: file_path(@conn, :index) %>

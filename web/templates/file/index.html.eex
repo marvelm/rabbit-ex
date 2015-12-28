@@ -1,0 +1,30 @@
+<h2>Listing files</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Url</th>
+      <th>Location</th>
+      <th>Content type</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for file <- @files do %>
+    <tr>
+      <td><%= file.url %></td>
+      <td><%= file.location %></td>
+      <td><%= file.content_type %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: file_path(@conn, :show, file), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: file_path(@conn, :edit, file), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: file_path(@conn, :delete, file), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "New file", to: file_path(@conn, :new) %>
