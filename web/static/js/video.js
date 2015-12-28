@@ -154,6 +154,30 @@ export var run = function() {
 
   // Displays
   let $controller = $('#controller')
+  let $caption = $('#caption')
+
+  video.captionTimeout = 3000
+  video.displayCaption = (caption, time) => {
+    $caption.text(caption)
+    if (time) {
+      setTimeout(() => { $caption.text('') }, time)
+    } else {
+      setTimeout(() => { $caption.text('') }, video.captionTimeout)
+    }
+  }
+
+  function humanizeSeconds(seconds) {
+    var date = new Date(null);
+    date.setSeconds(seconds);
+    // hh:mm:ss
+    return date.toISOString().substr(11, 8);
+  }
+
+  video.addEventListener('mousemove', () => {
+    video.displayCaption(
+      humanizeSeconds(video.duration - video.currentTime) + ' remaining')
+  })
+
   $controller.click(() => {
     video.controlling = !video.controlling
     if (video.controlling) {
