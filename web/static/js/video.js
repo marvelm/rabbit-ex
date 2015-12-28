@@ -127,12 +127,12 @@ export var run = function() {
   video.channel = channel
 
   channel.on('play', payload => {
-    video.currentTime = payload.currentTime + video.latency
+    video.currentTime = payload.currentTime + payload.latency + video.latency
     video.play()
   })
   video.onplay = () => {
     if (video.controlling)
-      channel.push('play', {currentTime: video.currentTime + video.latency})
+      channel.push('play', {currentTime: video.currentTime, latency: video.latency})
   }
 
   channel.on('pause', payload => {
@@ -141,7 +141,7 @@ export var run = function() {
   })
   video.onpause = () => {
     if (video.controlling)
-      channel.push('pause', {currentTime: video.currentTime})
+      channel.push('pause', {currentTime: video.currentTime, latency: video.latency})
   }
 
   channel.join()
@@ -204,10 +204,10 @@ export var run = function() {
 
   video.partnerTime = 0;
   setInterval(() => {
-    channel.push('time_update', {currentTime: video.currentTime + video.latency})
+    channel.push('time_update', {currentTime: video.currentTime, latency: video.latency})
   }, 500)
   channel.on('time_update', payload => {
-    video.partnerTime = payload.currentTime + video.latency
+    video.partnerTime = payload.currentTime + payload.latency + video.latency
     // delta 3s
     if (video.partnerTime > video.currentTime + 3 || video.partnerTime < video.currentTime - 3) {
       video.displayCaption('Out of sync')
