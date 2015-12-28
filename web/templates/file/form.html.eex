@@ -1,3 +1,4 @@
+<div class="container">
 <%= form_for @changeset, @action, fn f -> %>
   <%= if @changeset.action do %>
     <div class="alert alert-danger">
@@ -27,3 +28,4 @@
     <%= submit "Submit", class: "btn btn-primary" %>
   </div>
 <% end %>
+</div>

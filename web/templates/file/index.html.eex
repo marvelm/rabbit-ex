@@ -1,3 +1,4 @@
+<div class="container">
 <h2>Listing files</h2>
 
 <table class="table">
@@ -28,3 +29,4 @@
 </table>
 
 <%= link "New file", to: file_path(@conn, :new) %>
+</div>
