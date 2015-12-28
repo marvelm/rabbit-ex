@@ -1,5 +1,6 @@
 defmodule Rabbit.UserSocket do
   use Phoenix.Socket
+  require Logger
 
   ## Channels
   # channel "rooms:*", Rabbit.RoomChannel
@@ -20,6 +21,7 @@ defmodule Rabbit.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(_params, socket) do
+    Logger.debug "socket connection"
     {:ok, socket}
   end
 
