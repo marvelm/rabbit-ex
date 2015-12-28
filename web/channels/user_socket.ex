@@ -3,7 +3,7 @@ defmodule Rabbit.UserSocket do
   require Logger
 
   ## Channels
-  # channel "rooms:*", Rabbit.RoomChannel
+  channel "video:*", Rabbit.VideoChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -21,7 +21,7 @@ defmodule Rabbit.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(_params, socket) do
-    Logger.debug "socket connection"
+    Logger.debug "new socket connection"
     {:ok, socket}
   end
 

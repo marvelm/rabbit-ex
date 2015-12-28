@@ -2,6 +2,11 @@
   <video src="/stream/<%= @stream_id %>"
     controls>
 </div>
+<div>
+  <div id="controller">
+    Take control
+  </div>
+</div>
 <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
 <script>
   $(require("web/static/js/video").run);

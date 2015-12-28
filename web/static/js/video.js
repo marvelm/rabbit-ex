@@ -1,3 +1,5 @@
+import socket from './socket'
+
 function polyfill(video) {
   video.requestFullscreen = video.requestFullscreen || video.msRequestFullscreen || video.mozRequestFullScreen || video.webkitRequestFullscreen;
   document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
@@ -10,34 +12,33 @@ function polyfill(video) {
               if (document.msFullscreenElement !== undefined)
                 return true;
               return false;
-            }());
-    };
+            }())
+    }
   }
 }
 
-export var video = document.getElementsByTagName('video')[0];
-var $video = $(video);
-var $window = $(window);
-
 export var run = function() {
+  let video = document.getElementsByTagName('video')[0]
+  let $video = $(video)
+  let $window = $(window)
 
   polyfill(video);
 
-  video.resize = function() {
+  video.resize = () => {
     $video.css({
       'height': $window.height() + 'px',
       'width': $window.width() + 'px'
-    });
-  };
+    })
+  }
 
-  video.togglePlaying = function() {
+  video.togglePlaying = () => {
     if (video.paused)
       video.play();
     else
       video.pause();
   };
 
-  video.toggleFullScreen = function() {
+  video.toggleFullScreen = () => {
     if (document.webkitFullscreenElement)
       document.exitFullscreen();
     else
@@ -49,7 +50,9 @@ export var run = function() {
   video.volumeStep = 0.05;
   video.skipStep = 3;
 
-  var keys = {
+  video.controlling = false;
+
+  let keys = {
     space: 32,
     arrow: {
       right: 39,
@@ -63,16 +66,16 @@ export var run = function() {
 
   // To slow down fast forwarding with the keyboard
   // Debouncing
-  var keyboardDelay = false;
-  setInterval(function() {
+  let keyboardDelay = false;
+  setInterval(() => {
     keyboardDelay = false;
   }, 300);
 
   $video.click(video.togglePlaying);
   $video.dblclick(video.toggleFullScreen);
 
-  window.addEventListener('keydown', function(e) {
-    var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+  window.addEventListener('keydown', (e) => {
+    let key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
     switch (key) {
      case keys.arrow.right:
        if (!keyboardDelay) {
@@ -115,4 +118,48 @@ export var run = function() {
   });
 
   $(video.resize);
+
+  // Channel stuff
+
+  video.streamId = window.location.href
+    .split('/').pop();
+  let channel = socket.channel('video:' + video.streamId, {})
+  video.channel = channel
+
+  channel.on('play', payload => {
+    video.currentTime = payload.currentTime
+    video.play()
+  })
+  video.onplay = () => {
+    if (video.controlling)
+      channel.push('play', {currentTime: video.currentTime})
+  }
+
+  channel.on('pause', payload => {
+    video.currentTime = payload.currentTime
+    video.pause()
+  })
+  video.onpause = () => {
+    if (video.controlling)
+      channel.push('pause', {currentTime: video.currentTime})
+  }
+
+  channel.on('pong', () => {
+    console.log('pong')
+  })
+
+  channel.join()
+    .receive('ok', resp => { console.log('Joined successfully', resp) })
+    .receive('error', resp => { console.log('Unable to join', resp) })
+
+  // Displays
+  let $controller = $('#controller')
+  $controller.click(() => {
+    video.controlling = !video.controlling
+    if (video.controlling) {
+      $controller.text('You are controlling the video')
+    } else {
+      $controller.text('Take control')
+    }
+  })
 }
