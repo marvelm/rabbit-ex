@@ -8,7 +8,7 @@ To start:
   2. Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   3. Start Phoenix endpoint with `mix phoenix.server`
 
-Now you can visit [`localhost:4000/files`](http://localhost:4000) from your browser.
+Now you can visit [`localhost:4000/files`](http://localhost:4000/files) from your browser.
 Add a video of your choosing by clicking on the "New file" link on the bottom.
 
 
