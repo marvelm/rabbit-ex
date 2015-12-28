@@ -30,4 +30,8 @@ defmodule Rabbit.VideoChannel do
     {:noreply, socket}
   end
 
+  def handle_in("taken_control", _, socket) do
+    broadcast_from! socket, "taken_control", %{}
+    {:noreply, socket}
+  end
 end

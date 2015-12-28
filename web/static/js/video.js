@@ -184,8 +184,10 @@ export var run = function() {
       humanizeSeconds(video.duration - video.currentTime) + ' remaining')
   })
 
-  function renderController() {
+  function setController(bool) {
+    video.controlling = bool
     if (video.controlling) {
+      channel.push('taken_control', {})
       $controller.text('You are controlling the video')
     } else {
       $controller.text('Take control')
@@ -193,7 +195,10 @@ export var run = function() {
   }
 
   $controller.click(() => {
-    video.controlling = !video.controlling
-    renderController()
+    setController(!video.controlling)
+  })
+
+  channel.on('taken_control', () => {
+    setController(false)
   })
 }
