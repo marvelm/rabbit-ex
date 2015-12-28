@@ -1,3 +1,4 @@
+/* jshint esnext: true */
 import socket from './socket'
 
 function polyfill(video) {

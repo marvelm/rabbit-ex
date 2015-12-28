@@ -11,4 +11,6 @@ video {
     margin: 0;
     top: 80%;
     z-index: 90000000001;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px;
 }

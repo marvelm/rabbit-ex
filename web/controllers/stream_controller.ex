@@ -29,7 +29,7 @@ defmodule Rabbit.StreamController do
           |> String.split("-")
 
         end_ = case end_ do
-          "" -> file.size - 2
+          ""   -> file.size - 2
           end_ -> String.to_integer(end_)
         end
 
