@@ -4,6 +4,20 @@ import socket from './socket'
 function polyfill(video) {
   video.requestFullscreen = video.requestFullscreen || video.msRequestFullscreen || video.mozRequestFullScreen || video.webkitRequestFullscreen
   document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen
+
+  video.togglePlaying = () => {
+    if (video.paused)
+      video.play()
+    else
+      video.pause()
+  }
+
+  video.toggleFullScreen = () => {
+    if (document.webkitFullscreenElement)
+      document.exitFullscreen()
+    else
+      video.requestFullscreen()
+  }
 }
 
 export var run = function() {
@@ -20,20 +34,6 @@ export var run = function() {
       'height': $window.height() + 'px',
       'width': $window.width() + 'px'
     })
-  }
-
-  video.togglePlaying = () => {
-    if (video.paused)
-      video.play()
-    else
-      video.pause()
-  }
-
-  video.toggleFullScreen = () => {
-    if (document.webkitFullscreenElement)
-      document.exitFullscreen()
-    else
-      video.requestFullscreen()
   }
 
   window.onresize = video.resize

@@ -22,8 +22,8 @@ export var run = () => {
     audioTrack: undefined
   }
 
-  $(user.video).dblclick(() => { user.video.requestFullscreen() })
-  $(partner.video).dblclick(() => { partner.video.requestFullscreen() })
+  $(user.video).dblclick(user.video.toggleFullScreen)
+  $(partner.video).dblclick(partner.video.toggleFullScreen)
 
   partner.peerConn = new RTCPeerConnection({'iceServers': [{url:'stun:stun.1.google.com:19302'}]})
 
