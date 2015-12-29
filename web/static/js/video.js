@@ -213,4 +213,12 @@ export var run = function() {
       video.displayCaption('Out of sync')
     }
   })
+
+  channel.on('redirect', payload => {
+    window.location.href = '/' + payload.location
+  })
+
+  video.redirect = (loc) => {
+    channel.push('redirect', {location: loc})
+  }
 }
