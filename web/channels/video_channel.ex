@@ -36,7 +36,7 @@ defmodule Rabbit.VideoChannel do
   end
 
   def handle_in("redirect", %{"location" => location}, socket) do
-    broadcast_from! socket, "redirect", %{location: location}
+    broadcast! socket, "redirect", %{location: location}
     {:noreply, socket}
   end
 end
