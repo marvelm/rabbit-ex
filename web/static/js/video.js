@@ -161,14 +161,23 @@ export var run = function() {
   // Displays
   let $controller = $('#controller')
   let $caption = $('#caption')
+  video.displayingCaption = false
 
   video.captionTimeout = 3000
-  video.displayCaption = (caption, time) => {
-    $caption.text(caption)
-    if (time) {
-      setTimeout(() => { $caption.text('') }, time)
-    } else {
-      setTimeout(() => { $caption.text('') }, video.captionTimeout)
+  video.displayCaption = (caption, time, important) => {
+    function resetCaption () {
+      $caption.text('')
+      video.displayingCaption = false
+    }
+
+    if (!video.displayingCaption) {
+      if (important)
+        video.displayingCaption = true
+      $caption.text(caption)
+      if (time)
+        setTimeout(resetCaption, time)
+      else
+        setTimeout(resetCaption, video.captionTimeout)
     }
   }
 
