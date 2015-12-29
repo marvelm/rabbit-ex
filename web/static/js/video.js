@@ -2,8 +2,8 @@
 import socket from './socket'
 
 function polyfill(video) {
-  video.requestFullscreen = video.requestFullscreen || video.msRequestFullscreen || video.mozRequestFullScreen || video.webkitRequestFullscreen;
-  document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+  video.requestFullscreen = video.requestFullscreen || video.msRequestFullscreen || video.mozRequestFullScreen || video.webkitRequestFullscreen
+  document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen
 }
 
 export var run = function() {
@@ -25,7 +25,7 @@ export var run = function() {
       video.play()
     else
       video.pause()
-  };
+  }
 
   video.toggleFullScreen = () => {
     if (document.webkitFullscreenElement)
@@ -64,7 +64,7 @@ export var run = function() {
   $video.dblclick(video.toggleFullScreen)
 
   window.addEventListener('keydown', (e) => {
-    let key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+    let key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0
     switch (key) {
      case keys.arrow.right:
        if (!keyboardDelay) {
@@ -109,8 +109,7 @@ export var run = function() {
   $(video.resize)
 
   // Channel stuff
-  video.streamId = window.location.href
-    .split('/').pop();
+  video.streamId = window.location.href.split('/').pop()
   let channel = socket.channel('video:' + video.streamId, {})
   video.channel = channel
 
@@ -170,10 +169,10 @@ export var run = function() {
   }
 
   function humanizeSeconds(seconds) {
-    var date = new Date(null);
-    date.setSeconds(seconds);
+    var date = new Date(null)
+    date.setSeconds(seconds)
     // hh:mm:ss
-    return date.toISOString().substr(11, 8);
+    return date.toISOString().substr(11, 8)
   }
 
   video.addEventListener('mousemove', () => {
@@ -198,7 +197,7 @@ export var run = function() {
     setController(false)
   })
 
-  video.partnerTime = 0;
+  video.partnerTime = 0
   setInterval(() => {
     channel.push('time_update', {currentTime: video.currentTime + video.latency})
   }, 500)

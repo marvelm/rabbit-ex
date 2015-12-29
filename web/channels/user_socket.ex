@@ -5,6 +5,8 @@ defmodule Rabbit.UserSocket do
   ## Channels
   channel "video:*", Rabbit.VideoChannel
 
+  channel "hangout:*", Rabbit.HangoutChannel
+
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
   # transport :longpoll, Phoenix.Transports.LongPoll

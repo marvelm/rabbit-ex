@@ -1,0 +1,16 @@
+<div id="call">Call</div>
+<div>
+  <span id="user" class="pull-left">
+    <video autoplay muted></video>
+    <div class="mute"></div>
+  </span>
+  <span id="partner" class="pull-right">
+    <video autoplay></video>
+  </span>
+</div>
+
+<script>
+  window.onload = () => {
+    require("web/static/js/hangout").run()
+  }
+</script>
