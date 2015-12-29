@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 import socket from './socket'
 
-export var callButton = document.querySelector('#call')
+var callButton = document.querySelector('#call')
 
 export var run = () => {
   var RTCPeerConnection =     window.RTCPeerConnection || window.mozRTCPeerConnection ||
@@ -19,8 +19,11 @@ export var run = () => {
   var partner = {
     video: document.querySelector('#partner video'),
     stream: undefined,
-    audioTrack: undefined,
+    audioTrack: undefined
   }
+
+  $(user.video).dblclick(() => { user.video.requestFullscreen() })
+  $(partner.video).dblclick(() => { partner.video.requestFullscreen() })
 
   partner.peerConn = new RTCPeerConnection({'iceServers': [{url:'stun:stun.1.google.com:19302'}]})
 

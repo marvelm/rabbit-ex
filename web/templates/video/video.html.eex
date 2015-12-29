@@ -2,16 +2,28 @@
   <video src="/stream/<%= @stream_id %>"
     controls></video>
   <h1 id="caption"></h1>
+
+  <span id="user" class="hangout">
+    <video autoplay muted></video>
+    <div class="mute"></div>
+  </span>
+
+  <span id="partner" class="hangout">
+    <video autoplay></video>
+  </span>
+
 </div>
 
 <div>
+  <div id="call">Call</div>
   <div id="controller">
     Take control
   </div>
 </div>
 
 <script>
-  window.onload = () => {
+  window.onload = function() {
     require("web/static/js/video").run()
+    require("web/static/js/hangout").run()
   }
 </script>

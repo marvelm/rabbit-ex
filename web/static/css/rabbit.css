@@ -1,9 +1,11 @@
 .video-body {
     margin: 0;
 }
+
 video {
     object-fit: cover;
 }
+
 #caption {
     position: absolute;
     color: #FFF;
@@ -13,4 +15,24 @@ video {
     z-index: 90000000001;
     background-color: rgba(0, 0, 0, 0.7);
     padding: 5px;
+}
+
+.hangout {
+  position: absolute;
+  margin-top: -25%;
+}
+
+#user video {
+  width: 25%;
+}
+
+#partner video {
+  width: 75%;
+}
+
+#partner {
+  margin-left: 80%;
+  margin-right: 0;
+  padding-right: 0;
+  text-align: right;
 }

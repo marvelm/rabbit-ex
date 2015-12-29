@@ -7,11 +7,13 @@ function polyfill(video) {
 }
 
 export var run = function() {
+  $('video').each((i, v) => {
+    polyfill(v)
+  })
+
   let video = document.getElementsByTagName('video')[0]
   let $video = $(video)
   let $window = $(window)
-
-  polyfill(video)
 
   video.resize = () => {
     $video.css({
