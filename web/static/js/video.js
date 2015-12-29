@@ -215,7 +215,7 @@ export var run = function() {
   })
 
   channel.on('redirect', payload => {
-    window.location.href = '/' + payload.location
+    window.location.href = '/video/' + payload.location
   })
 
   video.redirect = (loc) => {
