@@ -217,10 +217,6 @@ export var run = function() {
   }, 500)
   channel.on('time_update', payload => {
     video.partnerTime = payload.currentTime + video.latency
-    // delta 3s
-    if (video.partnerTime > video.currentTime + 3 || video.partnerTime < video.currentTime - 3) {
-      video.displayCaption('Out of sync')
-    }
   })
 
   channel.on('redirect', payload => {
