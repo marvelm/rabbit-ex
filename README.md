@@ -44,6 +44,8 @@ MIX_ENV=prod mix ecto.migrate
 
 Now you need to configure the secret key. Execute `mix phoenix.gen.secret` in the `rabbit` directory to obtain a secret.
 Place the result in the `secret_key_base` field in `config/prod.secret.exs`
+You also need to specify the host (or IP address) of your server in `config/prod.exs`
+on line 21.
 
 
 To finally run the server:
