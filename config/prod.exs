@@ -13,6 +13,11 @@ use Mix.Config
 # which you typically run after static files are built.
 config :rabbit, Rabbit.Endpoint,
   http: [port: {:system, "PORT"}],
+  # https: [port: 443,
+  #         keyfile: "/absolute/path/to/server.key",
+  #         certfile: "/absolute/path/to/server.crt",
+  #         cacertfile: "THIS IS OPTIONAL. /absolute/path/to/ca.crt"
+  #       ]
   url: [host: "example.com", port: 80],
   cache_static_manifest: "priv/static/manifest.json"
 
