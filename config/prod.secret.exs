@@ -5,7 +5,7 @@ use Mix.Config
 # your version control system.
 config :rabbit, Rabbit.Endpoint,
   # set your own. at least 64
-  secret_key_base: ""
+  secret_key_base: "v2H26XT/+x9HUlXGw+aJrcYj3b1bwdnhIgt6dFi9ZtZG7c1hnB9TzYxjFHoovVb6"
 
 # Configure your database
 config :rabbit, Rabbit.Repo,

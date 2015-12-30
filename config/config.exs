@@ -10,7 +10,7 @@ config :rabbit, Rabbit.Endpoint,
   url: [host: "localhost"],
   root: Path.dirname(__DIR__),
   # Set your own
-  secret_key_base: "",
+  secret_key_base: "v2H26XT/+x9HUlXGw+aJrcYj3b1bwdnhIgt6dFi9ZtZG7c1hnB9TzYxjFHoovVb6",
   render_errors: [accepts: ~w(html json)],
   pubsub: [name: Rabbit.PubSub,
            adapter: Phoenix.PubSub.PG2]

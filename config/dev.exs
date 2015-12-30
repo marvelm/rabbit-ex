@@ -36,8 +36,5 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :rabbit, Rabbit.Repo,
   adapter: Sqlite.Ecto,
-  username: "postgres",
-  password: "postgres",
   database: "rabbit_dev",
-  hostname: "localhost",
   pool_size: 10

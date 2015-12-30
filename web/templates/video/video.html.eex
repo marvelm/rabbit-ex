@@ -15,9 +15,11 @@
 </div>
 
 <div>
-  <div id="call">Call</div>
-  <div id="controller">
+  <div id="controller" class="btn">
     Take control
+  </div>
+  <div id="call" class="btn">
+    Call
   </div>
 </div>
 
