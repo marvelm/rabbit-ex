@@ -22,7 +22,7 @@ The `Location` field refers to the location of the video file on the disk.
 The `Content type` can be one of two strings `video/webm` and `video/mp4.`
 
 ## Deployment
-You will need `wget`, `unzip`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
+You will need `wget` `unzip`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
 
 Execute the following commands to download Rabbit into a folder called 'rabbit'.
 ```
@@ -76,3 +76,13 @@ source .env
 MIX_ENV=prod mix phoenix.digest
 MIX_ENV=prod mix ecto.migrate
 ```
+
+## Notes
+
+You will need to have a secure endpoint for the video chat feature to work. You may generate
+an SSL certificate like so:
+```
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt
+```
+
+Then, you must specify the absolute path of the certificate and key in `config/prod.exs`
