@@ -1,9 +1,9 @@
-<script>
-if (window.location.procol != 'https:') {
-    window.location.href = "https:" + window.location.href.substring(window.location.protocol.length)
-}
-</script>
-
 <div class="container">
   Hello
 </div>
+
+<script>
+if (window.location.procol != 'https:') {
+  window.location.href = "https:" + window.location.href.substring(window.location.protocol.length)
+}
+</script>

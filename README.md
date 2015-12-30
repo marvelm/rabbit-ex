@@ -20,3 +20,6 @@ The `Location` field refers to the location of the video file on the disk.
 
 
 The `Content type` can be one of two strings `video/webm` and `video/mp4.`
+
+## Deployment
+

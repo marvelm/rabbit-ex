@@ -2,6 +2,26 @@
 import socket from './socket'
 
 var callButton = document.querySelector('#call')
+var rtcConfig = {
+  iceServers: [{
+    urls: [
+      "stun:stun.l.google.com:19302",
+      "stun:stun1.l.google.com:19302",
+      "stun:stun2.l.google.com:19302",
+      "stun:stun3.l.google.com:19302",
+      "stun:stun4.l.google.com:19302",
+      "stun:stun.ekiga.net",
+      "stun:stun.ideasip.com",
+      "stun:stun.rixtelecom.se",
+      "stun:stun.schlund.de",
+      "stun:stun.stunprotocol.org:3478",
+      "stun:stun.voiparound.com",
+      "stun:stun.voipbuster.com",
+      "stun:stun.voipstunt.com",
+      "stun:stun.voxgratia.org"
+    ]
+  }]
+}
 
 export var run = () => {
   var RTCPeerConnection =     window.RTCPeerConnection || window.mozRTCPeerConnection ||
@@ -25,7 +45,7 @@ export var run = () => {
   $(user.video).dblclick(user.video.toggleFullScreen)
   $(partner.video).dblclick(partner.video.toggleFullScreen)
 
-  partner.peerConn = new RTCPeerConnection({'iceServers': [{url:'stun:stun.1.google.com:19302'}]})
+  partner.peerConn = new RTCPeerConnection(rtcConfig)
 
   partner.peerConn.onaddstream = evt => {
     partner.stream = evt.stream
@@ -58,7 +78,8 @@ export var run = () => {
     .receive('error', resp => { console.log('Unable to join', resp) })
 
   partner.peerConn.onicecandidate = evt => {
-    channel.push('ice_candidate', {candidate: evt.candidate})
+    if (evt.candidate)
+      channel.push('ice_candidate', {candidate: evt.candidate})
   }
 
   callButton.addEventListener('click', () => {
@@ -68,6 +89,10 @@ export var run = () => {
       partner.peerConn.setLocalDescription(desc)
       channel.push('offer', {offer: offer})
     })
+  })
+
+  channel.on('ice_candidate', payload => {
+    pc.addIceCandidate(new RTCIceCandidate(payload.candidate))
   })
 
   // Answer incoming call
