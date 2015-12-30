@@ -28,7 +28,7 @@ export var run = () => {
                           window.webkitRTCPeerConnection || window.msRTCPeerConnection;
   var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription ||
                           window.webkitRTCSessionDescription || window.msRTCSessionDescription;
-  var RTCIceCandidate =       window.webkitRTCIceCandidate;
+  var RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate;
 
   navigator.getUserMedia = navigator.getUserMedia ||
                            navigator.webkitGetUserMedia;
@@ -78,8 +78,10 @@ export var run = () => {
     .receive('error', resp => { console.log('Unable to join', resp) })
 
   partner.peerConn.onicecandidate = evt => {
-    if (evt.candidate)
+    if (evt.candidate) {
+      partner.peerConn.onicecandidate = undefined
       channel.push('ice_candidate', {candidate: evt.candidate})
+    }
   }
 
   callButton.addEventListener('click', () => {
@@ -92,7 +94,7 @@ export var run = () => {
   })
 
   channel.on('ice_candidate', payload => {
-    pc.addIceCandidate(new RTCIceCandidate(payload.candidate))
+    partner.peerConn.addIceCandidate(new RTCIceCandidate(payload.candidate))
   })
 
   // Answer incoming call
