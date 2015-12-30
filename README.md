@@ -50,3 +50,29 @@ To finally run the server:
 ```
 PORT=80 MIX_ENV=prod mix phoenix.server
 ```
+
+## Update
+To update run the following script in the parent directory of rabbit. It will download
+the latest source files, keep your config, and migrate the database.
+
+```
+wget https://github.com/marvelm/rabbit-ex/archive/master.zip
+unzip master.zip
+rm master.zip
+mv rabbit-ex-master rabbit-new
+cp rabbit/rabbit_prod rabbit-new
+rm -rf rabbit-new/config
+cp -r rabbit/config rabbit-new
+cp -r rabbit/.env rabbit-new
+cp -r rabbit/run.sh rabbit-new
+mv rabbit rabbit_backup
+
+mv rabbit-new rabbit
+cd rabbit
+npm install
+mix deps.get
+brunch build --production
+source .env
+MIX_ENV=prod mix phoenix.digest
+MIX_ENV=prod mix ecto.migrate
+```
