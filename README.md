@@ -22,7 +22,7 @@ The `Location` field refers to the location of the video file on the disk.
 The `Content type` can be one of two strings `video/webm` and `video/mp4.`
 
 ## Deployment
-You will need `unzip`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
+You will need `wget`, `unzip`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
 
 Execute the following commands to download Rabbit into a folder called 'rabbit'.
 ```
