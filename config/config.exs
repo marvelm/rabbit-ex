@@ -9,7 +9,8 @@ use Mix.Config
 config :rabbit, Rabbit.Endpoint,
   url: [host: "localhost"],
   root: Path.dirname(__DIR__),
-  secret_key_base: "mgIl7MbuAAeVDrtOWE6jtDpBc3203bySMILrEuXDQ3iNSuHczHtsbYQn203oXxve",
+  # Set your own
+  secret_key_base: "",
   render_errors: [accepts: ~w(html json)],
   pubsub: [name: Rabbit.PubSub,
            adapter: Phoenix.PubSub.PG2]

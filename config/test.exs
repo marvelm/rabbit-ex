@@ -11,9 +11,6 @@ config :logger, level: :warn
 
 # Configure your database
 config :rabbit, Rabbit.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  adapter: Sqlite.Ecto,
   database: "rabbit_test",
-  hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
