@@ -81,14 +81,4 @@ MIX_ENV=prod mix ecto.migrate
 
 ## Notes
 
-You will need to have a secure endpoint for the video chat feature to work. You may generate
-an SSL certificate like so:
-```
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt
-```
-
-Then, you must specify the absolute path of the certificate and key in `config/prod.exs`
-
-
-I've only ever done all of these steps twice, so they may not work for you.
-In that case, please file an issue.
+Check out the `hangout` branch to try the video chat feature
