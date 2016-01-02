@@ -1,3 +1,6 @@
+This branch contains the video chat feature. For some reason (likely STUN configuration)
+the feature doesn't work for participants from two different networks.
+
 # Rabbit
 
 Rabbit synchronizes videos between partners
