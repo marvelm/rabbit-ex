@@ -26,6 +26,5 @@
 <script>
   window.onload = function() {
     require("web/static/js/video").run()
-    require("web/static/js/hangout").run()
   }
 </script>
