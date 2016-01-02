@@ -1,20 +1,24 @@
 .video-body {
-    margin: 0;
+  margin: 0;
 }
 
 video {
-    object-fit: cover;
+  object-fit: cover;
 }
 
 #caption {
-    position: absolute;
-    color: #FFF;
-    text-align: center;
-    margin: 0;
-    top: 80%;
-    z-index: 90000000001;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 5px;
+  position: absolute;
+  color: #FFF;
+  text-align: center;
+  margin: 0;
+  top: 80%;
+  z-index: 90000000001;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 5px;
+}
+
+#caption:empty {
+  padding: 0;
 }
 
 .hangout {
