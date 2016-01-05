@@ -63,11 +63,15 @@ export var run = function() {
         }
     });
 
+    let closeVideoChannel = undefined;
     channel.on('media', function(payload) {
         screen.current = payload;
 
         if (payload.mediaType == 'youtube') {
-            try { video.destroy(); } catch (e) { console.log(e); }
+            try {
+                video.destroy();
+                closeVideoChannel();
+            } catch (e) { console.log(e); }
             video.hide();
             ytPlayer.loadVideoById({
                 videoId: payload.youtubeId,
@@ -81,7 +85,7 @@ export var run = function() {
             ytPlayer.hide();
             video.show();
             video.src = '/stream/' + payload.path;
-            runVideo(video);
+            closeVideoChannel = runVideo(video).shutdown;
             ytPlayer.stopVideo();
             // try { ytPlayer.destroy(); } catch (e) { console.log(e); }
         }

@@ -221,4 +221,8 @@ export var run = function(video, $controller) {
   video.redirect = (loc) => {
     channel.push('redirect', {location: loc})
   }
+
+  return {
+    shutdown: channel.leave
+  }
 }
