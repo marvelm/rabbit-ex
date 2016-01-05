@@ -55,11 +55,12 @@ export var run = function() {
                 });
         }
 
-        else
+        else {
             channel.push('media', {
                 mediaType: 'video',
                 path: input
             });
+        }
     });
 
     channel.on('media', function(payload) {
@@ -68,13 +69,12 @@ export var run = function() {
         if (payload.mediaType == 'youtube') {
             try { video.destroy(); } catch (e) { console.log(e); }
             video.hide();
-            ytPlayer.show();
-            console.log(payload.youtubeId);
             ytPlayer.loadVideoById({
                 videoId: payload.youtubeId,
                 startSeconds: 0,
                 suggestedQuality: 'large'
             });
+            ytPlayer.show();
         }
 
         else if (payload.mediaType == 'video') {
@@ -82,6 +82,8 @@ export var run = function() {
             video.show();
             video.src = '/stream/' + payload.path;
             runVideo(video);
+            ytPlayer.stopVideo();
+            // try { ytPlayer.destroy(); } catch (e) { console.log(e); }
         }
     });
 
