@@ -7,6 +7,8 @@ defmodule Rabbit.UserSocket do
 
   channel "hangout:*", Rabbit.HangoutChannel
 
+  channel "live:*", Rabbit.LiveChannel
+
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
   # transport :longpoll, Phoenix.Transports.LongPoll

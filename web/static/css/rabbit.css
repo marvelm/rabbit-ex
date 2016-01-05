@@ -2,7 +2,7 @@
   margin: 0;
 }
 
-video {
+video#main-video {
   object-fit: cover;
 }
 

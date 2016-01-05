@@ -1,0 +1,24 @@
+<div id="screen">
+    <div class="hidden" id="youtube"></div>
+
+    <video class="hidden" id="main-video" src=""
+           controls></video>
+
+    <div>
+        <form>
+            <input type="text">
+            <input type="submit" value="load">
+        </form>
+
+        <div id="controller" class="btn hidden">
+            Take control
+        </div>
+    </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+ window.onload = function() {
+     require("web/static/js/live").run();
+ };
+</script>

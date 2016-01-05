@@ -1,5 +1,5 @@
 <div>
-  <video src="/stream/<%= @stream_id %>"
+  <video id="main-video" src="/stream/<%= @stream_id %>"
     controls></video>
   <h1 id="caption"></h1>
 

@@ -18,14 +18,23 @@ function polyfill(video) {
     else
       video.requestFullscreen()
   }
+
+  video.destroy = () => {
+    video.src = ''
+    video.load()
+  }
 }
 
-export var run = function() {
+export var run = function(video, $controller) {
   $('video').each((i, v) => {
     polyfill(v)
   })
 
-  let video = document.getElementsByTagName('video')[0]
+  if (!video)
+    video = document.getElementById('main-video')
+  if (!$controller)
+      $controller = $('#controller')
+
   let $video = $(video)
   let $window = $(window)
 
@@ -111,7 +120,7 @@ export var run = function() {
   $(video.resize)
 
   // Channel stuff
-  video.streamId = window.location.href.split('/').pop()
+  video.streamId = video.src.split('/').pop()
   let channel = socket.channel('video:' + video.streamId, {})
   video.channel = channel
 
@@ -147,8 +156,6 @@ export var run = function() {
     video.latency = (Date.now() - startTime) / 1000 // ms to s
   })
 
-  // Displays
-  let $controller = $('#controller')
   let $caption = $('#caption')
   video.displayingCaption = false
 
