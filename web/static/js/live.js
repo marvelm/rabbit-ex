@@ -62,6 +62,15 @@ export var run = function() {
             });
         }
     });
+    $input.focus(() => {
+        $input
+            .one('mouseup', () => {
+                $input.select();
+                return false;
+            })
+            .select();
+    });
+
 
     let closeVideoChannel = undefined;
     channel.on('media', function(payload) {
