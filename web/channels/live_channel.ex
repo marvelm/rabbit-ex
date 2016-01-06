@@ -27,6 +27,21 @@ defmodule Rabbit.LiveChannel do
     {:noreply, socket}
   end
 
+  def handle_in("pause", payload, socket) do
+    broadcast_from! socket, "pause", payload
+    {:noreply, socket}
+  end
+
+  def handle_in("play", payload, socket) do
+    broadcast_from! socket, "play", payload
+    {:noreply, socket}
+  end
+
+  def handle_in("taken_control", payload, socket) do
+    broadcast_from! socket, "taken_control", payload
+    {:noreply, socket}
+  end
+
   # This is invoked every time a notification is being broadcast
   # to the client. The default implementation is just to push it
   # downstream but one could filter or change the event.

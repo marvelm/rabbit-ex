@@ -50,7 +50,7 @@ export var run = function(video, $controller) {
   video.volumeStep = 0.05
   video.skipStep = 3
 
-  video.controlling = false
+  window.controlling = false
 
   let keys = {
     space: 32,
@@ -129,7 +129,7 @@ export var run = function(video, $controller) {
     video.play()
   })
   video.onplay = () => {
-    if (video.controlling)
+    if (window.controlling)
       channel.push('play', {currentTime: video.currentTime + video.latency})
   }
 
@@ -138,7 +138,7 @@ export var run = function(video, $controller) {
     video.pause()
   })
   video.onpause = () => {
-    if (video.controlling)
+    if (window.controlling)
       channel.push('pause', {currentTime: video.currentTime})
   }
 
@@ -190,8 +190,8 @@ export var run = function(video, $controller) {
   })
 
   function setController(bool) {
-    video.controlling = bool
-    if (video.controlling) {
+    window.controlling = bool
+    if (window.controlling) {
       channel.push('taken_control', {})
       $controller.text('You are controlling the video')
     } else {
@@ -200,7 +200,7 @@ export var run = function(video, $controller) {
   }
 
   $controller.click(() => {
-    setController(!video.controlling)
+    setController(!window.controlling)
   })
   channel.on('taken_control', () => {
     setController(false)
@@ -223,6 +223,11 @@ export var run = function(video, $controller) {
   }
 
   return {
-    shutdown: channel.leave
+      teardown: () => {
+          $controller.off('click')
+          $video.off('click')
+          $video.off('dblclick')
+          channel.leave()
+      }
   }
 }

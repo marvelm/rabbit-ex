@@ -10,7 +10,7 @@
             <input type="submit" value="load">
         </form>
 
-        <div id="controller" class="btn hidden">
+        <div id="controller" class="btn">
             Take control
         </div>
     </div>

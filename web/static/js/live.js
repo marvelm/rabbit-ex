@@ -14,11 +14,9 @@ export var run = function() {
     let $controller = $('#controller');
 
     video.hide = () => {
-        $controller.addClass('hidden');
         $video.addClass('hidden');
     };
     video.show = () => {
-        $controller.removeClass('hidden');
         $video.removeClass('hidden');
     };
 
@@ -36,7 +34,6 @@ export var run = function() {
     ytPlayer.show = () => {
         $('#youtube').removeClass('hidden');
     };
-
     screen.ytPlayer = ytPlayer;
 
     let youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i;
@@ -71,16 +68,42 @@ export var run = function() {
             .select();
     });
 
+    let teardownVideo = undefined;
+    function setController(bool) {
+        window.controlling = bool;
+        if (screen.current && screen.current.mediaType == 'video') {
+            channel.push('taken_control', {});
+            $controller.text('You are controlling the video');
+        } else {
+            $controller.text('Take control');
+        }
+    }
+    $controller.click(() => {
+        setController(!window.controlling);
+    });
+    channel.on('taken_control', () => {
+        setController(false);
+    });
 
-    let closeVideoChannel = undefined;
     channel.on('media', function(payload) {
         screen.current = payload;
 
         if (payload.mediaType == 'youtube') {
             try {
                 video.destroy();
-                closeVideoChannel();
+                teardownVideo();
             } catch (e) { console.log(e); }
+
+            $controller.off('click').click(() => {
+                window.controlling = !window.controlling;
+                if (window.controlling) {
+                    $controller.text('You are controlling the video');
+                    channel.push('taken_control', {});
+                } else {
+                    $controller.text('Take control');
+                }
+            });
+
             video.hide();
             ytPlayer.loadVideoById({
                 videoId: payload.youtubeId,
@@ -94,18 +117,43 @@ export var run = function() {
             ytPlayer.hide();
             video.show();
             video.src = '/stream/' + payload.path;
-            closeVideoChannel = runVideo(video).shutdown;
+            teardownVideo = runVideo(video).teardown;
             ytPlayer.stopVideo();
             // try { ytPlayer.destroy(); } catch (e) { console.log(e); }
         }
     });
 
+    channel.on('play', function(payload) {
+        console.log('play ' + payload.currentTime);
+        ytPlayer.seekTo(payload.currentTime);
+        ytPlayer.playVideo();
+    });
+    channel.on('pause', function(payload) {
+        console.log('pause ' + payload.currentTime);
+        ytPlayer.pauseVideo();
+        ytPlayer.seekTo(payload.currentTime);
+    });
+
     function onPlayerReady(event) {
-        if (event.data == YT.PlayerState.PLAYING)
-            event.target.playVideo();
+        // console.log(event);
     }
 
     function onPlayerStateChange(event) {
+        if (window.controlling) {
+            switch (event.data) {
+            case YT.PlayerState.PLAYING:
+                channel.push('play', {
+                    currentTime: ytPlayer.getCurrentTime()
+                });
+                break;
+            case YT.PlayerState.PAUSED:
+                channel.push('pause', {
+                    currentTime: ytPlayer.getCurrentTime()
+                });
+                break;
+            }
+        }
+        // console.log(event);
     }
 
     channel.join()
