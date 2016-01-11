@@ -38,6 +38,10 @@ export var run = function() {
 
   let youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i
 
+  ytPlayer.getVideoId = () => {
+    return youtubeRegex.exec(ytPlayer.getVideoUrl())[1]
+  }
+
   $form.submit(function(event) {
     event.preventDefault()
     let input = $input.val()
@@ -89,8 +93,6 @@ export var run = function() {
     screen.current = payload
 
     if (payload.mediaType == 'youtube') {
-
-
       try {
         video.destroy()
         teardownVideo()
@@ -144,6 +146,16 @@ export var run = function() {
     if (window.controlling) {
       switch (event.data) {
       case YT.PlayerState.PLAYING:
+        // User has selected a related video.
+        let id = ytPlayer.getVideoId()
+        if (screen.current.youtubeId != id) {
+          screen.current = {
+            youtubeId: id,
+            mediaType: 'youtube'
+          }
+          channel.push('media', screen.current)
+        }
+
         channel.push('play', {
           currentTime: ytPlayer.getCurrentTime()
         })
