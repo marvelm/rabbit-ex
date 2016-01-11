@@ -121,7 +121,7 @@ export var run = function(video, $controller) {
 
   // Channel stuff
   video.streamId = video.src.split('/').pop()
-  let channel = socket.channel('video:' + video.streamId, {})
+  let channel = socket.channel(`video:${video.streamId}`, {})
   video.channel = channel
 
   channel.on('play', payload => {
@@ -186,7 +186,7 @@ export var run = function(video, $controller) {
 
   video.addEventListener('mousemove', () => {
     video.displayCaption(
-      humanizeSeconds(video.duration - video.currentTime) + ' remaining')
+      `${humanizeSeconds(video.duration - video.currentTime)} remaining`)
   })
 
   function setController(bool) {
@@ -215,7 +215,7 @@ export var run = function(video, $controller) {
   })
 
   channel.on('redirect', payload => {
-    window.location.href = '/video/' + payload.location
+    window.location.href = `/video/${payload.location}`
   })
 
   video.redirect = (loc) => {

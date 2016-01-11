@@ -120,7 +120,7 @@ export var run = function() {
     else if (payload.mediaType == 'video') {
       ytPlayer.hide()
       video.show()
-      video.src = '/stream/' + payload.path
+      video.src = `/stream/${payload.path}`
       teardownVideo = runVideo(video).teardown
       ytPlayer.stopVideo()
       // try { ytPlayer.destroy() } catch (e) { console.log(e); }
@@ -128,12 +128,10 @@ export var run = function() {
   })
 
   channel.on('play', function(payload) {
-    console.log('play ' + payload.currentTime)
     ytPlayer.seekTo(payload.currentTime)
     ytPlayer.playVideo()
   })
   channel.on('pause', function(payload) {
-    console.log('pause ' + payload.currentTime)
     ytPlayer.pauseVideo()
     ytPlayer.seekTo(payload.currentTime)
   })
@@ -146,6 +144,7 @@ export var run = function() {
     if (window.controlling) {
       switch (event.data) {
       case YT.PlayerState.PLAYING:
+
         // User has selected a related video.
         let id = ytPlayer.getVideoId()
         if (screen.current.youtubeId != id) {
