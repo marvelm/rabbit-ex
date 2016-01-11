@@ -27,7 +27,7 @@ function polyfill(video) {
   }
 }
 
-export var run = function(video = document.getElementById('video'),
+export var run = function(video = document.getElementById('main-video'),
                           $controller = $('#controller')) {
   $('video').each((i, v) => {
     polyfill(v)
