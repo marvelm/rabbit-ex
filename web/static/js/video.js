@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 import socket from './socket'
 
+// Add important functions to video element
 function polyfill(video) {
   video.requestFullscreen = video.requestFullscreen || video.msRequestFullscreen || video.mozRequestFullScreen || video.webkitRequestFullscreen
   document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen
@@ -19,21 +20,18 @@ function polyfill(video) {
       video.requestFullscreen()
   }
 
+  // Resets the video element
   video.destroy = () => {
     video.src = ''
     video.load()
   }
 }
 
-export var run = function(video, $controller) {
+export var run = function(video = document.getElementById('video'),
+                          $controller = $('#controller')) {
   $('video').each((i, v) => {
     polyfill(v)
   })
-
-  if (!video)
-    video = document.getElementById('main-video')
-  if (!$controller)
-      $controller = $('#controller')
 
   let $video = $(video)
   let $window = $(window)
@@ -52,6 +50,7 @@ export var run = function(video, $controller) {
 
   window.controlling = false
 
+  // Key codes
   let keys = {
     space: 32,
     arrow: {
