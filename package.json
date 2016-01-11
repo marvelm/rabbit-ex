@@ -11,6 +11,7 @@
     "uglify-js-brunch": ">= 1.0 < 1.8"
   },
   "jshintConfig": {
-    "esversion": 6
+    "esversion": 6,
+    "asi": true
   }
 }
