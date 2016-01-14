@@ -73,41 +73,16 @@ export var run = function() {
   })
 
   let teardownVideo = undefined
-  function setController(bool) {
-    window.controlling = bool
-    if (screen.current && screen.current.mediaType == 'video') {
-      channel.push('taken_control', {})
-      $controller.text('You are controlling the video')
-    } else {
-      $controller.text('Take control')
-    }
-  }
-  $controller.click(() => {
-    setController(!window.controlling)
-  })
-  channel.on('taken_control', () => {
-    setController(false)
-  })
 
   channel.on('media', function(payload) {
     screen.current = payload
 
+    try {
+      video.destroy()
+      teardownVideo()
+    } catch (e) { console.log(e) }
+
     if (payload.mediaType == 'youtube') {
-      try {
-        video.destroy()
-        teardownVideo()
-      } catch (e) { console.log(e) }
-
-      $controller.off('click').click(() => {
-        window.controlling = !window.controlling
-        if (window.controlling) {
-          $controller.text('You are controlling the video')
-          channel.push('taken_control', {})
-        } else {
-          $controller.text('Take control')
-        }
-      })
-
       video.hide()
       ytPlayer.loadVideoById({
         videoId: payload.youtubeId,
@@ -121,7 +96,7 @@ export var run = function() {
       ytPlayer.hide()
       video.show()
       video.src = `/stream/${payload.path}`
-      teardownVideo = runVideo(video).teardown
+      teardownVideo = runVideo(video, $controller).teardown
       ytPlayer.stopVideo()
       // try { ytPlayer.destroy() } catch (e) { console.log(e); }
     }

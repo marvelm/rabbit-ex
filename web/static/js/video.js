@@ -70,53 +70,56 @@ export var run = function(video = document.getElementById('main-video'),
     keyboardDelay = false
   }, 300)
 
-  $video.click(video.togglePlaying)
-  $video.dblclick(video.toggleFullScreen)
+  $video.on('click', video.togglePlaying)
+  $video.on('dblclick', video.toggleFullScreen)
 
   window.addEventListener('keydown', (e) => {
+    if (!$video.is(':hover')) {
+      return;
+    }
     let key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0
     switch (key) {
-     case keys.arrow.right:
-       if (!keyboardDelay) {
-         keyboardDelay = true
-         video.currentTime += video.skipStep
-       }
-       e.preventDefault()
-       break
-     case keys.arrow.left:
-       if (!keyboardDelay) {
-         keyboardDelay = true
-         video.currentTime -= video.skipStep
-       }
-       e.preventDefault()
-       break
-     case keys.arrow.up:
-       if (video.volume + video.volumeStep >= 1)
-         video.volume = 1
-       else
-         video.volume += video.volumeStep
-       e.preventDefault()
-       break
-     case keys.arrow.down:
-       if (video.volume - video.volumeStep <= 0)
-         video.volume = 0
-       else
-         video.volume -= video.volumeStep
-       e.preventDefault()
-       break
-     case keys.space:
-     case keys.p:
-       video.togglePlaying()
-       e.preventDefault()
-       break
-     case keys.f:
-       video.toggleFullScreen()
-       e.stopPropagation()
-       break
+    case keys.arrow.right:
+      if (!keyboardDelay) {
+        keyboardDelay = true
+        video.currentTime += video.skipStep
+      }
+      e.preventDefault()
+      break
+    case keys.arrow.left:
+      if (!keyboardDelay) {
+        keyboardDelay = true
+        video.currentTime -= video.skipStep
+      }
+      e.preventDefault()
+      break
+    case keys.arrow.up:
+      if (video.volume + video.volumeStep >= 1)
+        video.volume = 1
+      else
+        video.volume += video.volumeStep
+      e.preventDefault()
+      break
+    case keys.arrow.down:
+      if (video.volume - video.volumeStep <= 0)
+        video.volume = 0
+      else
+        video.volume -= video.volumeStep
+      e.preventDefault()
+      break
+    case keys.space:
+    case keys.p:
+      video.togglePlaying()
+      e.preventDefault()
+      break
+    case keys.f:
+      video.toggleFullScreen()
+      e.preventDefault()
+      break
     }
   })
 
-  $(video.resize)
+  video.resize()
 
   // Channel stuff
   video.streamId = video.src.split('/').pop()
@@ -198,9 +201,13 @@ export var run = function(video = document.getElementById('main-video'),
     }
   }
 
-  $controller.click(() => {
+  setController(false)
+
+  var toggleController = () => {
     setController(!window.controlling)
-  })
+  }
+  $controller.on('click', toggleController)
+
   channel.on('taken_control', () => {
     setController(false)
   })
@@ -222,11 +229,13 @@ export var run = function(video = document.getElementById('main-video'),
   }
 
   return {
-      teardown: () => {
-          $controller.off('click')
-          $video.off('click')
-          $video.off('dblclick')
-          channel.leave()
-      }
+    teardown: () => {
+      $controller.off('click', toggleController)
+      $video.off('click', video.togglePlaying)
+      $video.off('dblclick', video.toggleFullScreen)
+      video.destroy()
+      channel.leave()
+    },
+    video: video
   }
 }
