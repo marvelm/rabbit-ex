@@ -80,6 +80,8 @@ export var run = function() {
     try {
       video.destroy()
       teardownVideo()
+      ytPlayer.hide()
+      ytPlayer.stopVideo()
     } catch (e) { console.log(e) }
 
     if (payload.mediaType == 'youtube') {
@@ -93,11 +95,9 @@ export var run = function() {
     }
 
     else if (payload.mediaType == 'video') {
-      ytPlayer.hide()
       video.show()
       video.src = `/stream/${payload.path}`
       teardownVideo = runVideo(video, $controller).teardown
-      ytPlayer.stopVideo()
       // try { ytPlayer.destroy() } catch (e) { console.log(e); }
     }
   })
