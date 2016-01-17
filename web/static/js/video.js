@@ -28,7 +28,8 @@ function polyfill(video) {
 }
 
 export var run = function(video = document.getElementById('main-video'),
-                          $controller = $('#controller')) {
+                          $controller = $('#controller'),
+                          channelName = undefined) {
   $('video').each((i, v) => {
     polyfill(v)
   })
@@ -123,7 +124,8 @@ export var run = function(video = document.getElementById('main-video'),
 
   // Channel stuff
   video.streamId = video.src.split('/').pop()
-  let channel = socket.channel(`video:${video.streamId}`, {})
+  let channel = channelName ? socket.channel(`video:${channelName}`) :
+        socket.channel(`video:${video.streamId}`, {})
   video.channel = channel
 
   channel.on('play', payload => {
