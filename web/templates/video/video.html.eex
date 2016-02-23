@@ -1,27 +1,21 @@
-<div>
-  <video id="main-video" src="/stream/<%= @stream_id %>"
-    controls></video>
-  <h1 id="caption"></h1>
-
-  <span id="user" class="hangout">
-    <video autoplay muted></video>
-    <div class="mute"></div>
-  </span>
-
-  <span id="partner" class="hangout">
-    <video autoplay></video>
-  </span>
-
-</div>
-
-<div>
-  <div id="controller" class="btn">
-    Take control
-  </div>
-</div>
+<div id="video"></div>
 
 <script>
-  window.onload = function() {
-    require("web/static/js/video").run()
-  }
+ var streamId = 'example'
+ var videoEle = document.getElementById('video');
+ var video = require('web/static/js/video');
+
+ var syncVid = video.mount(streamId, videoEle);
+
+ var socket = require('web/static/js/socket').default;
+ console.log(socket)
+ var channel = socket.channel("video:" + streamId, {});
+ channel.join()
+        .receive("ok", function(resp) {
+            syncVid.useChannel(channel);
+            console.log("Joined successfully", resp)
+        }).receive("error", function(resp) {
+            console.log("Unable to join", resp)
+        })
+
 </script>

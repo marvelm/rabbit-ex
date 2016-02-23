@@ -2,7 +2,7 @@
 import socket from './socket'
 
 // Add important functions to video element
-function polyfill(video) {
+export function polyfill(video) {
   video.requestFullscreen = video.requestFullscreen || video.msRequestFullscreen || video.mozRequestFullScreen || video.webkitRequestFullscreen
   document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen
 
@@ -27,13 +27,6 @@ function polyfill(video) {
   }
 }
 
-function runVideoPolyfill(document) {
-  let videos = document.querySelectorAll('video')
-  for (var i = 0; i < videos.length; i++) {
-    polyfill(videos[i])
-  }
-}(document)
-
 import React from 'react'
 import ReactDOM from 'react-dom'
 
@@ -44,11 +37,24 @@ function humanizeSeconds(seconds) {
   return date.toISOString().substr(11, 8)
 }
 
-class SynchronizedVideo extends React.Component {
+function debounce(fn, delay) {
+  var timer = null;
+  return function () {
+    var context = this, args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      fn.apply(context, args);
+    }, delay);
+  };
+}
+
+export class SynchronizedVideo extends React.Component {
   constructor(props) {
     super(props)
     this.state = {streamId: props.streamId,
-                  controlling: false}
+                  controlling: false,
+                  partnerTime: 0,
+                  isDisplayingCurrentTime: false}
   }
 
   useChannel(channel) {
@@ -57,9 +63,9 @@ class SynchronizedVideo extends React.Component {
     let state = self.state
     state.channel = channel
 
-    var startTime
+    var startTime = Date.now()
     let latency = 0
-    state.pingInterval = setInterval(function ping() {
+    state.pingInterval = window.setInterval(function ping() {
       startTime = Date.now()
       channel.push('ping', {})
     }, 1000)
@@ -68,33 +74,24 @@ class SynchronizedVideo extends React.Component {
     })
 
     let video = self.refs.videoElement
-
     channel.on('play', payload => {
-      video.currentTime = payload.currentTime + video.latency
+      video.currentTime = payload.currentTime + latency
       video.play()
     })
-    video.onplay = () => {
-      if (state.controlling)
-        channel.push('play', {currentTime: video.currentTime + video.latency})
-    }
-
     channel.on('pause', payload => {
       video.currentTime = payload.currentTime
       video.pause()
     })
-    video.onpause = () => {
-      if (state.controlling)
-        channel.push('pause', {currentTime: video.currentTime})
-    }
 
-    state.timeUpdateInterval = setInterval(() => {
+    state.timeUpdateInterval = window.setInterval(() => {
       channel.push('time_update',
                    {currentTime: video.currentTime + latency})
     }, 500)
 
     channel.on('time_update', payload => {
-      state.partnerTime = payload.currentTime + latency
-      this.setState(this.state)
+      self.setState({
+        partnerTime: payload.currentTime
+      })
     })
 
     channel.on('redirect', payload => {
@@ -102,51 +99,99 @@ class SynchronizedVideo extends React.Component {
     })
 
     channel.on('taken_control', () => {
-      this.giveControl()
+      self.giveUpControl()
     })
   }
 
-  takeControl() {
-    if (this.state.channel) {
-      this.state.controlling = true
-      this.state.channel.push('taken_control', {})
-      this.setState(this.state)
-    }
-  }
-
-  giveControl() {
-    this.state.controlling = false
-    this.setState(this.state)
-  }
-
-  displayCurrentTime() {
-    setTimeout(function hideCurrentTime() {
-      this.state.isDisplayingCurrentTime = false
-      this.setState(this.state)
-    }, 2000)
-  }
-
   render() {
-    let userTime = humanizeSeconds(this.refs.videoElement.currentTime)
-    let partnerTime = this.state.partnerTime || "Partner hasn't played yet"
-    let hasControl = this.state.controlling ? "Give up control" : "Take control"
-    let toggleControl = this.state.controlling ? this.giveControl : this.takeControl
-    let captionClasses = this.state.isDisplayingCurrentTime ? "caption" : "hidden caption"
+    let video = this.refs.videoElement
+    if(video) {
+      polyfill(video)
+    }
+    let state = this.state
+    let remaining = video ?
+          humanizeSeconds(video.duration - video.currentTime) :
+          humanizeSeconds(0)
+
+    let partnerTime = state.partnerTime ?
+          humanizeSeconds(state.partnerTime) :
+          "Partner hasn't played yet"
+
+    let hasControl = state.controlling ? "Give up control" : "Take control"
+
+    let captionClasses = state.isDisplayingCurrentTime ? "caption" : "hidden"
+
+    let toggleControl = (e) => {
+      let controlling = !this.state.controlling
+      if (controlling && this.state.channel) {
+        this.state.channel.push('taken_control', {})
+      }
+      this.setState({controlling})
+    }
+
+    let displayCurrentTime = (e) => {
+      if (!this.state.isDisplayingCurrentTime) {
+        this.setState({
+          isDisplayingCurrentTime: true
+        })
+        window.setTimeout(() => {
+          this.setState({
+            isDisplayingCurrentTime: false
+          })
+        }, 2000)
+      }
+    }
+
+    let togglePlaying = () => {
+      if(video)
+        video.togglePlaying()
+    }
+    let toggleFullScreen = () => {
+      if(video)
+        video.toggleFullScreen()
+    }
+
+    let onPlay = () => {
+      if(state.controlling)
+        state.channel.push('play',
+                           {currentTime: video.currentTime + state.latency})
+    }
+    let onPause = () => {
+      if(state.controlling)
+        state.channel.push('pause',
+                           {currentTime: video.currentTime})
+    }
 
     return (
-        <div class="synchronized-video">
+        <div className="synchronized-video">
 
-        <div class="player" onmouseover={this.state.displayingCurrentTime = false}>
-        <video ref="videoElement" src={this.state.streamId} controls>
-        </video>
-        <h1 class={captionClasses}>{userTime}</h1>
+        <div className="player" onMouseMove={displayCurrentTime}>
+        <video ref="videoElement" src={'/stream/' + this.state.streamId}
+      controls
+      onClick={togglePlaying}
+      onDoubleClick={toggleFullScreen}
+      onPlay={onPlay}
+      onPause={onPause}></video>
+        <h1 className={captionClasses}>{remaining} remaining</h1>
         </div>
 
-        <div class="controller" onclick={toggleControl}>{hasControl}</div>
-        <div class="partnerTime">{partnerTime}</div>
+        <div className="controller" onClick={toggleControl}>{hasControl}</div>
+        <div className="partnerTime">{partnerTime}</div>
 
         </div>
     )
+  }
+
+  componentDidMount() {
+    // For rendering the current time
+    // this.updateTimeCaptionInterval = setInterval(() => {
+    //   this.setState(this.state)
+    // }, 500)
+  }
+
+  componentWillUnmount() {
+    // if(this.updateTimeCaptionInterval)
+    //   clearInterval(this.updateTimeCaptionInterval)
   }
 }
 
@@ -154,222 +199,221 @@ SynchronizedVideo.propTypes = {
   streamId: React.PropTypes.string
 }
 
-export var video = {
-  SynchronizedVideo,
-  polyfill
+export function mount(streamId, ele) {
+  return ReactDOM.render(<SynchronizedVideo streamId={streamId}/>, ele)
 }
 
-export var run = function(video = document.getElementById('main-video'),
-                          $controller = $('#controller'),
-                          channelName = undefined) {
-  $('video').each((i, v) => {
-    polyfill(v)
-  })
+// export var run = function(video = document.getElementById('main-video'),
+//                           $controller = $('#controller'),
+//                           channelName = undefined) {
+//   $('video').each((i, v) => {
+//     polyfill(v)
+//   })
 
-  let $video = $(video)
-  let $window = $(window)
+//   let $video = $(video)
+//   let $window = $(window)
 
-  video.resize = () => {
-    $video.css({
-      'height': $window.height() + 'px',
-      'width': $window.width() + 'px'
-    })
-  }
+//   video.resize = () => {
+//     $video.css({
+//       'height': $window.height() + 'px',
+//       'width': $window.width() + 'px'
+//     })
+//   }
 
-  window.onresize = video.resize
+//   window.onresize = video.resize
 
-  video.volumeStep = 0.05
-  video.skipStep = 3
+//   video.volumeStep = 0.05
+//   video.skipStep = 3
 
-  window.controlling = false
+//   window.controlling = false
 
-  // Key codes
-  let keys = {
-    space: 32,
-    arrow: {
-      right: 39,
-      left: 37,
-      up: 38,
-      down: 40
-    },
-    p: 80,
-    f: 70
-  }
+//   // Key codes
+//   let keys = {
+//     space: 32,
+//     arrow: {
+//       right: 39,
+//       left: 37,
+//       up: 38,
+//       down: 40
+//     },
+//     p: 80,
+//     f: 70
+//   }
 
-  // To slow down fast forwarding with the keyboard
-  // Debouncing
-  let keyboardDelay = false
-  setInterval(() => {
-    keyboardDelay = false
-  }, 300)
+//   // To slow down fast forwarding with the keyboard
+//   // Debouncing
+//   let keyboardDelay = false
+//   setInterval(() => {
+//     keyboardDelay = false
+//   }, 300)
 
-  $video.on('click', video.togglePlaying)
-  $video.on('dblclick', video.toggleFullScreen)
+//   $video.on('click', video.togglePlaying)
+//   $video.on('dblclick', video.toggleFullScreen)
 
-  window.addEventListener('keydown', (e) => {
-    if (!$video.is(':hover')) {
-      return;
-    }
-    let key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0
-    switch (key) {
-    case keys.arrow.right:
-      if (!keyboardDelay) {
-        keyboardDelay = true
-        video.currentTime += video.skipStep
-      }
-      e.preventDefault()
-      break
-    case keys.arrow.left:
-      if (!keyboardDelay) {
-        keyboardDelay = true
-        video.currentTime -= video.skipStep
-      }
-      e.preventDefault()
-      break
-    case keys.arrow.up:
-      if (video.volume + video.volumeStep >= 1)
-        video.volume = 1
-      else
-        video.volume += video.volumeStep
-      e.preventDefault()
-      break
-    case keys.arrow.down:
-      if (video.volume - video.volumeStep <= 0)
-        video.volume = 0
-      else
-        video.volume -= video.volumeStep
-      e.preventDefault()
-      break
-    case keys.space:
-    case keys.p:
-      video.togglePlaying()
-      e.preventDefault()
-      break
-    case keys.f:
-      video.toggleFullScreen()
-      e.preventDefault()
-      break
-    }
-  })
+//   window.addEventListener('keydown', (e) => {
+//     if (!$video.is(':hover')) {
+//       return;
+//     }
+//     let key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0
+//     switch (key) {
+//     case keys.arrow.right:
+//       if (!keyboardDelay) {
+//         keyboardDelay = true
+//         video.currentTime += video.skipStep
+//       }
+//       e.preventDefault()
+//       break
+//     case keys.arrow.left:
+//       if (!keyboardDelay) {
+//         keyboardDelay = true
+//         video.currentTime -= video.skipStep
+//       }
+//       e.preventDefault()
+//       break
+//     case keys.arrow.up:
+//       if (video.volume + video.volumeStep >= 1)
+//         video.volume = 1
+//       else
+//         video.volume += video.volumeStep
+//       e.preventDefault()
+//       break
+//     case keys.arrow.down:
+//       if (video.volume - video.volumeStep <= 0)
+//         video.volume = 0
+//       else
+//         video.volume -= video.volumeStep
+//       e.preventDefault()
+//       break
+//     case keys.space:
+//     case keys.p:
+//       video.togglePlaying()
+//       e.preventDefault()
+//       break
+//     case keys.f:
+//       video.toggleFullScreen()
+//       e.preventDefault()
+//       break
+//     }
+//   })
 
-  video.resize()
+//   video.resize()
 
-  // Channel stuff
-  video.streamId = video.src.split('/').pop()
-  let channel = channelName ? socket.channel(`video:${channelName}`) :
-        socket.channel(`video:${video.streamId}`, {})
-  video.channel = channel
+//   // Channel stuff
+//   video.streamId = video.src.split('/').pop()
+//   let channel = channelName ? socket.channel(`video:${channelName}`) :
+//         socket.channel(`video:${video.streamId}`, {})
+//   video.channel = channel
 
-  channel.on('play', payload => {
-    video.currentTime = payload.currentTime + video.latency
-    video.play()
-  })
-  video.onplay = () => {
-    if (window.controlling)
-      channel.push('play', {currentTime: video.currentTime + video.latency})
-  }
+//   channel.on('play', payload => {
+//     video.currentTime = payload.currentTime + video.latency
+//     video.play()
+//   })
+//   video.onplay = () => {
+//     if (window.controlling)
+//       channel.push('play', {currentTime: video.currentTime + video.latency})
+//   }
 
-  channel.on('pause', payload => {
-    video.currentTime = payload.currentTime
-    video.pause()
-  })
-  video.onpause = () => {
-    if (window.controlling)
-      channel.push('pause', {currentTime: video.currentTime})
-  }
+//   channel.on('pause', payload => {
+//     video.currentTime = payload.currentTime
+//     video.pause()
+//   })
+//   video.onpause = () => {
+//     if (window.controlling)
+//       channel.push('pause', {currentTime: video.currentTime})
+//   }
 
-  channel.join()
-    .receive('ok', resp => { console.log('Joined successfully', resp) })
-    .receive('error', resp => { console.log('Unable to join', resp) })
+//   channel.join()
+//     .receive('ok', resp => { console.log('Joined successfully', resp) })
+//     .receive('error', resp => { console.log('Unable to join', resp) })
 
-  var startTime
-  function ping() {
-    startTime = Date.now()
-    channel.push('ping', {})
-  }
-  setInterval(ping, 1000)
-  channel.on('pong', () => {
-    video.latency = (Date.now() - startTime) / 1000 // ms to s
-  })
+//   var startTime
+//   function ping() {
+//     startTime = Date.now()
+//     channel.push('ping', {})
+//   }
+//   setInterval(ping, 1000)
+//   channel.on('pong', () => {
+//     video.latency = (Date.now() - startTime) / 1000 // ms to s
+//   })
 
-  let $caption = $('#caption')
-  video.displayingCaption = false
+//   let $caption = $('#caption')
+//   video.displayingCaption = false
 
-  video.captionTimeout = 3000
-  video.displayCaption = (caption, time, important) => {
-    function resetCaption () {
-      $caption.text('')
-      video.displayingCaption = false
-    }
+//   video.captionTimeout = 3000
+//   video.displayCaption = (caption, time, important) => {
+//     function resetCaption () {
+//       $caption.text('')
+//       video.displayingCaption = false
+//     }
 
-    if (!video.displayingCaption) {
-      if (important)
-        video.displayingCaption = true
-      $caption.text(caption)
-      if (time)
-        setTimeout(resetCaption, time)
-      else
-        setTimeout(resetCaption, video.captionTimeout)
-    }
-  }
+//     if (!video.displayingCaption) {
+//       if (important)
+//         video.displayingCaption = true
+//       $caption.text(caption)
+//       if (time)
+//         setTimeout(resetCaption, time)
+//       else
+//         setTimeout(resetCaption, video.captionTimeout)
+//     }
+//   }
 
-  function humanizeSeconds(seconds) {
-    var date = new Date(null)
-    date.setSeconds(seconds)
-    // hh:mm:ss
-    return date.toISOString().substr(11, 8)
-  }
+//   function humanizeSeconds(seconds) {
+//     var date = new Date(null)
+//     date.setSeconds(seconds)
+//     // hh:mm:ss
+//     return date.toISOString().substr(11, 8)
+//   }
 
-  video.addEventListener('mousemove', () => {
-    video.displayCaption(
-      `${humanizeSeconds(video.duration - video.currentTime)} remaining`)
-  })
+//   video.addEventListener('mousemove', () => {
+//     video.displayCaption(
+//       `${humanizeSeconds(video.duration - video.currentTime)} remaining`)
+//   })
 
-  function setController(bool) {
-    window.controlling = bool
-    if (window.controlling) {
-      channel.push('taken_control', {})
-      $controller.text('You are controlling the video')
-    } else {
-      $controller.text('Take control')
-    }
-  }
+//   function setController(bool) {
+//     window.controlling = bool
+//     if (window.controlling) {
+//       channel.push('taken_control', {})
+//       $controller.text('You are controlling the video')
+//     } else {
+//       $controller.text('Take control')
+//     }
+//   }
 
-  setController(false)
+//   setController(false)
 
-  var toggleController = () => {
-    setController(!window.controlling)
-  }
-  $controller.on('click', toggleController)
+//   var toggleController = () => {
+//     setController(!window.controlling)
+//   }
+//   $controller.on('click', toggleController)
 
-  channel.on('taken_control', () => {
-    setController(false)
-  })
+//   channel.on('taken_control', () => {
+//     setController(false)
+//   })
 
-  video.partnerTime = 0
-  setInterval(() => {
-    channel.push('time_update', {currentTime: video.currentTime + video.latency})
-  }, 500)
-  channel.on('time_update', payload => {
-    video.partnerTime = payload.currentTime + video.latency
-  })
+//   video.partnerTime = 0
+//   setInterval(() => {
+//     channel.push('time_update', {currentTime: video.currentTime + video.latency})
+//   }, 500)
+//   channel.on('time_update', payload => {
+//     video.partnerTime = payload.currentTime + video.latency
+//   })
 
-  channel.on('redirect', payload => {
-    window.location.href = `/video/${payload.location}`
-  })
+//   channel.on('redirect', payload => {
+//     window.location.href = `/video/${payload.location}`
+//   })
 
-  video.redirect = (loc) => {
-    channel.push('redirect', {location: loc})
-  }
+//   video.redirect = (loc) => {
+//     channel.push('redirect', {location: loc})
+//   }
 
-  return {
-    teardown: () => {
-      $controller.off('click', toggleController)
-      $video.off('click', video.togglePlaying)
-      $video.off('dblclick', video.toggleFullScreen)
-      video.destroy()
-      channel.leave()
-    },
-    video: video
-  }
-}
+//   return {
+//     teardown: () => {
+//       $controller.off('click', toggleController)
+//       $video.off('click', video.togglePlaying)
+//       $video.off('dblclick', video.toggleFullScreen)
+//       video.destroy()
+//       channel.leave()
+//     },
+//     video: video
+//   }
+// }

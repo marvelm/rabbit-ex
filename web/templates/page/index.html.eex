@@ -2,6 +2,5 @@
     <div id="hello">
     </div>
     <script>
-     require('web/static/js/app')
     </script>
 </div>

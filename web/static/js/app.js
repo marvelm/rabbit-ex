@@ -13,26 +13,26 @@
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
 
-import React from 'react'
-import ReactDOM from 'react-dom'
+// import React from 'react'
+// import ReactDOM from 'react-dom'
 
-class HelloWorld extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {num: 0}
-    setInterval(() => {
-      this.state.num += 1
-      this.setState(this.state)
-    }, 500)
-  }
-  render() {
-    return (
-        <div>{this.state.num}</div>
-    )
-  }
-}
+// class HelloWorld extends React.Component {
+//   constructor(props) {
+//     super(props)
+//     this.state = {num: 0}
+//     setInterval(() => {
+//       this.state.num += 1
+//       this.setState(this.state)
+//     }, 1000)
+//   }
+//   render() {
+//     return (
+//         <div>{this.state.num}</div>
+//     )
+//   }
+// }
 
-ReactDOM.render(<HelloWorld/>, document.getElementById('hello'))
+// ReactDOM.render(<HelloWorld/>, document.getElementById('hello'))
 
 // Import local files
 //

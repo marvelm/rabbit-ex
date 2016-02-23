@@ -6,7 +6,7 @@ video#main-video {
   object-fit: cover;
 }
 
-#caption {
+.caption {
   position: absolute;
   color: #FFF;
   text-align: center;
@@ -17,7 +17,7 @@ video#main-video {
   padding: 5px;
 }
 
-#caption:empty {
+.caption:empty {
   padding: 0;
 }
 
