@@ -27,6 +27,138 @@ function polyfill(video) {
   }
 }
 
+function runVideoPolyfill(document) {
+  let videos = document.querySelectorAll('video')
+  for (var i = 0; i < videos.length; i++) {
+    polyfill(videos[i])
+  }
+}(document)
+
+import React from 'react'
+import ReactDOM from 'react-dom'
+
+function humanizeSeconds(seconds) {
+  var date = new Date(null)
+  date.setSeconds(seconds)
+  // hh:mm:ss
+  return date.toISOString().substr(11, 8)
+}
+
+class SynchronizedVideo extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {streamId: props.streamId,
+                  controlling: false}
+  }
+
+  useChannel(channel) {
+    let self = this
+
+    let state = self.state
+    state.channel = channel
+
+    var startTime
+    let latency = 0
+    state.pingInterval = setInterval(function ping() {
+      startTime = Date.now()
+      channel.push('ping', {})
+    }, 1000)
+    channel.on('pong', () => {
+      latency = (Date.now() - startTime) / 1000 // ms to s
+    })
+
+    let video = self.refs.videoElement
+
+    channel.on('play', payload => {
+      video.currentTime = payload.currentTime + video.latency
+      video.play()
+    })
+    video.onplay = () => {
+      if (state.controlling)
+        channel.push('play', {currentTime: video.currentTime + video.latency})
+    }
+
+    channel.on('pause', payload => {
+      video.currentTime = payload.currentTime
+      video.pause()
+    })
+    video.onpause = () => {
+      if (state.controlling)
+        channel.push('pause', {currentTime: video.currentTime})
+    }
+
+    state.timeUpdateInterval = setInterval(() => {
+      channel.push('time_update',
+                   {currentTime: video.currentTime + latency})
+    }, 500)
+
+    channel.on('time_update', payload => {
+      state.partnerTime = payload.currentTime + latency
+      this.setState(this.state)
+    })
+
+    channel.on('redirect', payload => {
+      window.location.href = `/video/${payload.location}`
+    })
+
+    channel.on('taken_control', () => {
+      this.giveControl()
+    })
+  }
+
+  takeControl() {
+    if (this.state.channel) {
+      this.state.controlling = true
+      this.state.channel.push('taken_control', {})
+      this.setState(this.state)
+    }
+  }
+
+  giveControl() {
+    this.state.controlling = false
+    this.setState(this.state)
+  }
+
+  displayCurrentTime() {
+    setTimeout(function hideCurrentTime() {
+      this.state.isDisplayingCurrentTime = false
+      this.setState(this.state)
+    }, 2000)
+  }
+
+  render() {
+    let userTime = humanizeSeconds(this.refs.videoElement.currentTime)
+    let partnerTime = this.state.partnerTime || "Partner hasn't played yet"
+    let hasControl = this.state.controlling ? "Give up control" : "Take control"
+    let toggleControl = this.state.controlling ? this.giveControl : this.takeControl
+    let captionClasses = this.state.isDisplayingCurrentTime ? "caption" : "hidden caption"
+
+    return (
+        <div class="synchronized-video">
+
+        <div class="player" onmouseover={this.state.displayingCurrentTime = false}>
+        <video ref="videoElement" src={this.state.streamId} controls>
+        </video>
+        <h1 class={captionClasses}>{userTime}</h1>
+        </div>
+
+        <div class="controller" onclick={toggleControl}>{hasControl}</div>
+        <div class="partnerTime">{partnerTime}</div>
+
+        </div>
+    )
+  }
+}
+
+SynchronizedVideo.propTypes = {
+  streamId: React.PropTypes.string
+}
+
+export var video = {
+  SynchronizedVideo,
+  polyfill
+}
+
 export var run = function(video = document.getElementById('main-video'),
                           $controller = $('#controller'),
                           channelName = undefined) {
