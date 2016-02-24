@@ -1,14 +1,13 @@
 <div id="video"></div>
 
 <script>
- var streamId = 'example'
+ var streamId = 'example';
  var videoEle = document.getElementById('video');
- var video = require('web/static/js/video');
+ var Video = require('web/static/js/video');
 
- var syncVid = video.mount(streamId, videoEle);
+ var syncVid = Video.mount(streamId, videoEle);
 
  var socket = require('web/static/js/socket').default;
- console.log(socket)
  var channel = socket.channel("video:" + streamId, {});
  channel.join()
         .receive("ok", function(resp) {
@@ -16,6 +15,57 @@
             console.log("Joined successfully", resp)
         }).receive("error", function(resp) {
             console.log("Unable to join", resp)
-        })
+        });
 
+ window.addEventListener('keydown', function(e) {
+     var video = syncVid.video;
+     //   // Key codes
+     var keys = {
+         space: 32,
+         arrow: {
+             right: 39,
+             left: 37,
+             up: 38,
+             down: 40
+         },
+         p: 80,
+         f: 70
+     };
+
+     var seekStep = 3
+     var volumeStep = 0.1
+
+     var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+     switch (key) {
+         case keys.arrow.right:
+             video.currentTime += seekStep;
+             e.preventDefault();
+             break;
+         case keys.arrow.left:
+             video.currentTime -= seekStep;
+             e.preventDefault();
+             break;
+         case keys.arrow.up:
+             if (video.volume + volumeStep >= 1)
+                 video.volume = 1;
+             else video.volume += volumeStep;
+             e.preventDefault();
+             break;
+         case keys.arrow.down:
+             if (video.volume - volumeStep <= 0)
+                 video.volume = 0;
+             else video.volume -= volumeStep;
+             e.preventDefault();
+             break;
+         case keys.space:
+         case keys.p:
+             video.togglePlaying();
+             e.preventDefault();
+             break;
+         case keys.f:
+             video.toggleFullScreen();
+             e.preventDefault();
+             break;
+     }
+ })
 </script>

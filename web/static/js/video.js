@@ -178,7 +178,8 @@ export class SynchronizedVideo extends React.Component {
       onDoubleClick={toggleFullScreen}
       onPlaying={onPlaying}
       onPause={onPause}
-      onTimeUpdate={onTimeUpdate}></video>
+      onTimeUpdate={onTimeUpdate}
+        ></video>
         <h1 className={captionClasses}>{remaining} remaining</h1>
         </div>
 
@@ -194,6 +195,7 @@ export class SynchronizedVideo extends React.Component {
   componentDidMount() {
     let video = this.refs.videoElement
     polyfill(video)
+    this.video = video
   }
 
   componentWillUnmount() {
