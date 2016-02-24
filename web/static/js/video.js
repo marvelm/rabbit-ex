@@ -168,11 +168,19 @@ export class SynchronizedVideo extends React.Component {
                            {currentTime: video.currentTime})
     }
 
+    let videoStyle = {
+      height: window.innherHeight,
+      width: window.innerWidth
+    }
+
     return (
         <div className="synchronized-video">
 
         <div className="player" onMouseMove={displayCurrentTime}>
-        <video ref="videoElement" src={'/stream/' + this.state.streamId}
+        <video
+      ref="videoElement"
+      src={'/stream/' + this.state.streamId}
+      style={videoStyle}
       controls
       onClick={togglePlaying}
       onDoubleClick={toggleFullScreen}
@@ -207,7 +215,7 @@ SynchronizedVideo.propTypes = {
 }
 
 export function mount(streamId, ele) {
-  return ReactDOM.render(<SynchronizedVideo streamId={streamId}/>, ele)
+  return ReactDOM.render(<SynchronizedVideo streamId={streamId} scale/>, ele)
 }
 
 // export var run = function(video = document.getElementById('main-video'),

@@ -17,8 +17,8 @@
             console.log("Unable to join", resp)
         });
 
+ var video = syncVid.video;
  window.addEventListener('keydown', function(e) {
-     var video = syncVid.video;
      //   // Key codes
      var keys = {
          space: 32,
@@ -67,5 +67,5 @@
              e.preventDefault();
              break;
      }
- })
+ });
 </script>
