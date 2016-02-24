@@ -1,9 +1,6 @@
 <div class="container">
-  Hello
+    <div id="hello">
+    </div>
+    <script>
+    </script>
 </div>
-
-<script>
-if (window.location.procol != 'https:') {
-  window.location.href = "https:" + window.location.href.substring(window.location.protocol.length)
-}
-</script>

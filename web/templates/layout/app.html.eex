@@ -9,17 +9,16 @@
 
     <title>Rabbit</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   </head>
 
   <body class="video-body">
     <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
     <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
 
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
     <main role="main">
       <%= render @view_module, @view_template, assigns %>
     </main>
 
-    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
