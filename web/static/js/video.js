@@ -54,7 +54,12 @@ export class SynchronizedVideo extends React.Component {
     this.state = {streamId: props.streamId,
                   controlling: false,
                   partnerTime: 0,
-                  isDisplayingCurrentTime: false}
+                  isDisplayingCurrentTime: false,
+                  firstTime: true}
+    let streamPrefs = window.localStorage.getItem(this.state.streamId)
+    if (streamPrefs) {
+      this.state.streamPrefs = JSON.parse(streamPrefs)
+    }
   }
 
   useChannel(channel) {
@@ -158,6 +163,8 @@ export class SynchronizedVideo extends React.Component {
                            {currentTime: video.currentTime + state.latency})
     }
     let onPause = () => {
+      window.localStorage.setItem(this.state.streamId,
+                                  JSON.stringify({lastPosition: video.currentTime}))
       if (state.controlling)
         state.channel.push('pause',
                            {currentTime: video.currentTime})
@@ -205,6 +212,13 @@ export class SynchronizedVideo extends React.Component {
     let video = this.refs.videoElement
     polyfill(video)
     this.video = video
+
+    if (this.state.firstTime) {
+      if (this.state.streamPrefs) {
+        video.currentTime = this.state.streamPrefs.lastPosition
+      }
+      this.setState({firstTime: false})
+    }
   }
 
   componentWillUnmount() {
