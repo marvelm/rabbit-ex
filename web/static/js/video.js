@@ -171,7 +171,6 @@ export class SynchronizedVideo extends React.Component {
     let videoStyle = {}
     if (this.props.scale)
       videoStyle = {
-        height: window.innherHeight,
         width: window.innerWidth
       }
 
