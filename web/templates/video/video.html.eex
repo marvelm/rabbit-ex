@@ -1,7 +1,7 @@
 <div id="video"></div>
 
 <script>
- var streamId = 'example';
+ var streamId = location.href.split('/')[4];
  var videoEle = document.getElementById('video');
  var Video = require('web/static/js/video');
 
