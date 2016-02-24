@@ -168,10 +168,12 @@ export class SynchronizedVideo extends React.Component {
                            {currentTime: video.currentTime})
     }
 
-    let videoStyle = {
-      height: window.innherHeight,
-      width: window.innerWidth
-    }
+    let videoStyle = {}
+    if (this.props.scale)
+      videoStyle = {
+        height: window.innherHeight,
+        width: window.innerWidth
+      }
 
     return (
         <div className="synchronized-video">
