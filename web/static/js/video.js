@@ -58,24 +58,23 @@ export class SynchronizedVideo extends React.Component {
   }
 
   useChannel(channel) {
-    let self = this
-
-    let state = self.state
+    let state = this.state
     state.channel = channel
 
     var startTime = Date.now()
-    let latency = 0
     state.pingInterval = window.setInterval(function ping() {
       startTime = Date.now()
       channel.push('ping', {})
     }, 1000)
     channel.on('pong', () => {
-      latency = (Date.now() - startTime) / 1000 // ms to s
+      this.setState({
+        latency: (Date.now() - startTime) / 1000 // ms to s
+      })
     })
 
-    let video = self.refs.videoElement
+    let video = this.refs.videoElement
     channel.on('play', payload => {
-      video.currentTime = payload.currentTime + latency
+      video.currentTime = payload.currentTime + this.state.latency
       video.play()
     })
     channel.on('pause', payload => {
@@ -85,11 +84,11 @@ export class SynchronizedVideo extends React.Component {
 
     state.timeUpdateInterval = window.setInterval(() => {
       channel.push('time_update',
-                   {currentTime: video.currentTime + latency})
+                   {currentTime: video.currentTime + this.state.latency})
     }, 500)
 
     channel.on('time_update', payload => {
-      self.setState({
+      this.setState({
         partnerTime: payload.currentTime
       })
     })
@@ -99,15 +98,14 @@ export class SynchronizedVideo extends React.Component {
     })
 
     channel.on('taken_control', () => {
-      self.giveUpControl()
+      this.setState({
+        controlling: false
+      })
     })
   }
 
   render() {
     let video = this.refs.videoElement
-    if(video) {
-      polyfill(video)
-    }
     let state = this.state
     let remaining = video ?
           humanizeSeconds(video.duration - video.currentTime) :
@@ -143,21 +141,29 @@ export class SynchronizedVideo extends React.Component {
     }
 
     let togglePlaying = () => {
-      if(video)
-        video.togglePlaying()
+      video.togglePlaying()
     }
     let toggleFullScreen = () => {
-      if(video)
-        video.toggleFullScreen()
+      video.toggleFullScreen()
     }
 
+    let onPlaying = () => {
+      if (state.controlling)
+        state.channel.push('play',
+                           {currentTime: video.currentTime + state.latency})
+    }
     let onPlay = () => {
-      if(state.controlling)
+      if (state.controlling)
         state.channel.push('play',
                            {currentTime: video.currentTime + state.latency})
     }
     let onPause = () => {
-      if(state.controlling)
+      if (state.controlling)
+        state.channel.push('pause',
+                           {currentTime: video.currentTime})
+    }
+    let onTimeUpdate = () => {
+      if (state.controlling && video.paused)
         state.channel.push('pause',
                            {currentTime: video.currentTime})
     }
@@ -170,12 +176,15 @@ export class SynchronizedVideo extends React.Component {
       controls
       onClick={togglePlaying}
       onDoubleClick={toggleFullScreen}
-      onPlay={onPlay}
-      onPause={onPause}></video>
+      onPlaying={onPlaying}
+      onPause={onPause}
+      onTimeUpdate={onTimeUpdate}></video>
         <h1 className={captionClasses}>{remaining} remaining</h1>
         </div>
 
-        <div className="controller" onClick={toggleControl}>{hasControl}</div>
+        <a href="javascript:;" className="controller"
+      onClick={toggleControl}>{hasControl}</a>
+
         <div className="partnerTime">{partnerTime}</div>
 
         </div>
@@ -183,15 +192,11 @@ export class SynchronizedVideo extends React.Component {
   }
 
   componentDidMount() {
-    // For rendering the current time
-    // this.updateTimeCaptionInterval = setInterval(() => {
-    //   this.setState(this.state)
-    // }, 500)
+    let video = this.refs.videoElement
+    polyfill(video)
   }
 
   componentWillUnmount() {
-    // if(this.updateTimeCaptionInterval)
-    //   clearInterval(this.updateTimeCaptionInterval)
   }
 }
 
