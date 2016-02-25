@@ -16,5 +16,13 @@
   "jshintConfig": {
     "esversion": 6,
     "asi": true
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha-generators": "^1.2.0",
+    "nightmare": "^2.2.0"
+  },
+  "scripts": {
+    "test": "./test.sh"
   }
 }

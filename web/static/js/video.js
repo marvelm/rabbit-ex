@@ -32,9 +32,13 @@ import ReactDOM from 'react-dom'
 
 function humanizeSeconds(seconds) {
   var date = new Date(null)
-  date.setSeconds(seconds)
+    date.setSeconds(seconds)
   // hh:mm:ss
-  return date.toISOString().substr(11, 8)
+  try {
+    return date.toISOString().substr(11, 8)
+  } catch(e) {
+    return '';
+  }
 }
 
 function debounce(fn, delay) {
@@ -199,7 +203,9 @@ export class SynchronizedVideo extends React.Component {
         <h1 className={captionClasses}>{remaining} remaining</h1>
         </div>
 
-        <a href="javascript:;" className="controller"
+        <a
+      href="javascript:;"
+      className="controller"
       onClick={toggleControl}>{hasControl}</a>
 
         <div className="partnerTime">{partnerTime}</div>
@@ -214,9 +220,8 @@ export class SynchronizedVideo extends React.Component {
     this.video = video
 
     if (this.state.firstTime) {
-      if (this.state.streamPrefs) {
+      if (this.state.streamPrefs)
         video.currentTime = this.state.streamPrefs.lastPosition
-      }
       this.setState({firstTime: false})
     }
   }
