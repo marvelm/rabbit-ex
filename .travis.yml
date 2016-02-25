@@ -5,5 +5,7 @@ otp_release:
   - 18.2.1
 before_script:
   - mix deps.get
+  - npm install
+  - npm install -g mocha
 script:
   - ./test.sh
