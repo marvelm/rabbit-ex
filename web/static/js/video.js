@@ -27,9 +27,6 @@ export function polyfill(video) {
   }
 }
 
-import React from 'react'
-import ReactDOM from 'react-dom'
-
 function humanizeSeconds(seconds) {
   var date = new Date(null)
     date.setSeconds(seconds)
@@ -41,79 +38,49 @@ function humanizeSeconds(seconds) {
   }
 }
 
-function debounce(fn, delay) {
-  var timer = null;
-  return function () {
-    var context = this, args = arguments;
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      fn.apply(context, args);
-    }, delay);
-  };
-}
+import MediaSynchronizer from "web/static/js/media_synchronizer"
 
-export class SynchronizedVideo extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {streamId: props.streamId,
-                  controlling: false,
-                  partnerTime: 0,
-                  isDisplayingCurrentTime: false,
-                  firstTime: true}
-    let streamPrefs = window.localStorage.getItem(this.state.streamId)
-    if (streamPrefs) {
-      this.state.streamPrefs = JSON.parse(streamPrefs)
-    }
-  }
+var SynchronizedVideo = React.createClass({
+  mixins: [MediaSynchronizer],
 
-  useChannel(channel) {
-    let state = this.state
-    state.channel = channel
-
-    var startTime = Date.now()
-    state.pingInterval = window.setInterval(function ping() {
-      startTime = Date.now()
-      channel.push('ping', {})
-    }, 1000)
-    channel.on('pong', () => {
-      this.setState({
-        latency: (Date.now() - startTime) / 1000 // ms to s
-      })
-    })
-
+  componentDidMount() {
     let video = this.refs.videoElement
-    channel.on('play', payload => {
-      video.currentTime = payload.currentTime + this.state.latency
-      video.play()
-    })
-    channel.on('pause', payload => {
-      video.currentTime = payload.currentTime
-      video.pause()
-    })
+    polyfill(video)
+    this.video = video
 
-    state.timeUpdateInterval = window.setInterval(() => {
-      channel.push('time_update',
-                   {currentTime: video.currentTime + this.state.latency})
-    }, 500)
+    if (this.state.firstTime) {
+      if (this.state.streamPrefs)
+        video.currentTime = this.state.streamPrefs.lastPosition
+      this.setState({firstTime: false})
+    }
+  },
 
-    channel.on('time_update', payload => {
-      this.setState({
-        partnerTime: payload.currentTime
-      })
-    })
+  getInitialState: function() {
+    let streamPrefs = window.localStorage.getItem(this.props.mediaId)
+    let state = {
+      socket: this.props.socket,
+      mediaId: this.props.mediaId
+    }
+    if (streamPrefs)
+      state.streamPrefs = JSON.parse(streamPrefs)
+    return state
+  },
 
-    channel.on('redirect', payload => {
-      window.location.href = `/video/${payload.location}`
-    })
+  currentTime: function() {
+    return this.refs.videoElement.currentTime
+  },
 
-    channel.on('taken_control', () => {
-      this.setState({
-        controlling: false
-      })
-    })
-  }
+  onChannelPlay: function(payload) {
+    this.refs.videoElement.currentTime = payload.currentTime + this.state.latency
+    this.refs.videoElement.play()
+  },
 
-  render() {
+  onChannelPause: function(payload) {
+    this.refs.videoElement.pause()
+    this.refs.videoElement.currentTime = payload.currentTime
+  },
+
+  render: function() {
     let video = this.refs.videoElement
     let state = this.state
     let remaining = video ?
@@ -130,10 +97,10 @@ export class SynchronizedVideo extends React.Component {
 
     let toggleControl = (e) => {
       let controlling = !this.state.controlling
-      if (controlling && this.state.channel) {
-        this.state.channel.push('taken_control', {})
-      }
-      this.setState({controlling})
+      if (controlling)
+        this.takeControl()
+      else
+        this.giveUpControl()
     }
 
     let displayCurrentTime = (e) => {
@@ -156,27 +123,14 @@ export class SynchronizedVideo extends React.Component {
       video.toggleFullScreen()
     }
 
-    let onPlaying = () => {
-      if (state.controlling)
-        state.channel.push('play',
-                           {currentTime: video.currentTime + state.latency})
-    }
-    let onPlay = () => {
-      if (state.controlling)
-        state.channel.push('play',
-                           {currentTime: video.currentTime + state.latency})
-    }
     let onPause = () => {
-      window.localStorage.setItem(this.state.streamId,
+      window.localStorage.setItem(this.props.mediaId,
                                   JSON.stringify({lastPosition: video.currentTime}))
-      if (state.controlling)
-        state.channel.push('pause',
-                           {currentTime: video.currentTime})
+      this.channelPause()
     }
     let onTimeUpdate = () => {
       if (state.controlling && video.paused)
-        state.channel.push('pause',
-                           {currentTime: video.currentTime})
+        this.channelPause()
     }
 
     let videoStyle = {}
@@ -191,12 +145,13 @@ export class SynchronizedVideo extends React.Component {
         <div className="player" onMouseMove={displayCurrentTime}>
         <video
       ref="videoElement"
-      src={'/stream/' + this.state.streamId}
+      src={'/stream/' + this.props.mediaId}
       style={videoStyle}
       controls
       onClick={togglePlaying}
-      onDoubleClick={toggleFullScreen}
-      onPlaying={onPlaying}
+      onDoubleClick={this.toggleFullScreen}
+      onPlaying={this.channelPlay}
+      onPlay={this.channelPlay}
       onPause={onPause}
       onTimeUpdate={onTimeUpdate}
         ></video>
@@ -213,27 +168,11 @@ export class SynchronizedVideo extends React.Component {
         </div>
     )
   }
+})
 
-  componentDidMount() {
-    let video = this.refs.videoElement
-    polyfill(video)
-    this.video = video
-
-    if (this.state.firstTime) {
-      if (this.state.streamPrefs)
-        video.currentTime = this.state.streamPrefs.lastPosition
-      this.setState({firstTime: false})
-    }
-  }
-
-  componentWillUnmount() {
-  }
-}
-
-SynchronizedVideo.propTypes = {
-  streamId: React.PropTypes.string
-}
-
-export function mount(streamId, ele) {
-  return ReactDOM.render(<SynchronizedVideo streamId={streamId} scale/>, ele)
+import ReactDOM from 'react-dom'
+import React from 'react'
+export function mount(streamId, ele, socket) {
+  return ReactDOM.render(
+      <SynchronizedVideo mediaId={streamId} socket={socket} scale/>, ele)
 }

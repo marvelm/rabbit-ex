@@ -5,21 +5,12 @@
  var videoEle = document.getElementById('video');
  var Video = require('web/static/js/video');
 
- var syncVid = Video.mount(streamId, videoEle);
-
  var socket = require('web/static/js/socket').default;
- var channel = socket.channel("video:" + streamId, {});
- channel.join()
-        .receive("ok", function(resp) {
-            syncVid.useChannel(channel);
-            console.log("Joined successfully", resp)
-        }).receive("error", function(resp) {
-            console.log("Unable to join", resp)
-        });
+ var syncVid = Video.mount(streamId, videoEle, socket);
 
  var video = syncVid.video;
  window.addEventListener('keydown', function(e) {
-     //   // Key codes
+     // Key codes
      var keys = {
          space: 32,
          arrow: {

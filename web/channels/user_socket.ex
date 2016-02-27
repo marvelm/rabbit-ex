@@ -3,10 +3,9 @@ defmodule Rabbit.UserSocket do
   require Logger
 
   ## Channels
-  channel "video:*", Rabbit.VideoChannel
-
+  # channel "video:*", Rabbit.VideoChannel
+  channel "media:*", Rabbit.MediaChannel
   channel "hangout:*", Rabbit.HangoutChannel
-
   channel "live:*", Rabbit.LiveChannel
 
   ## Transports

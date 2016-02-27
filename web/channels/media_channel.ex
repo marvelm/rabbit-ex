@@ -1,7 +1,7 @@
-defmodule Rabbit.VideoChannel do
+defmodule Rabbit.MediaChannel do
   use Phoenix.Channel
 
-  def join("video:" <> stream_id, _message, socket) do
+  def join("media:" <> stream_id, _message, socket) do
     {:ok, socket}
   end
 
