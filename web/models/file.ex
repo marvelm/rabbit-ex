@@ -5,12 +5,13 @@ defmodule Rabbit.File do
     field :url, :string
     field :location, :string
     field :content_type, :string
+    field :vtt_location, :string
 
     timestamps
   end
 
   @required_fields ~w(url location content_type)
-  @optional_fields ~w()
+  @optional_fields ~w(vtt_location)
 
   @doc """
   Creates a changeset based on the `model` and `params`.
