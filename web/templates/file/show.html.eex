@@ -18,6 +18,11 @@
     <%= @file.content_type %>
   </li>
 
+  <li>
+    <strong>VTT location:</strong>
+    <%= @file.vtt_location %>
+  </li>
+
 </ul>
 
 <%= link "Edit", to: file_path(@conn, :edit, @file) %>

@@ -140,32 +140,34 @@ var SynchronizedVideo = React.createClass({
       }
 
     return (
-        <div className="synchronized-video">
+      <div className="synchronized-video">
 
         <div className="player" onMouseMove={displayCurrentTime}>
-        <video
-      ref="videoElement"
-      src={'/stream/' + this.props.mediaId}
-      style={videoStyle}
-      controls
-      onClick={togglePlaying}
-      onDoubleClick={this.toggleFullScreen}
-      onPlaying={this.channelPlay}
-      onPlay={this.channelPlay}
-      onPause={onPause}
-      onTimeUpdate={onTimeUpdate}
-        ></video>
-        <h1 className={captionClasses}>{remaining} remaining</h1>
+          <video
+            ref="videoElement"
+            style={videoStyle}
+            controls
+            onClick={togglePlaying}
+            onDoubleClick={this.toggleFullScreen}
+            onPlaying={this.channelPlay}
+            onPlay={this.channelPlay}
+            onPause={onPause}
+            onTimeUpdate={onTimeUpdate}>
+            <source src={"/stream/" + this.props.mediaId}/>
+            <track label="English" kind="subtitles" srcLang="en"
+              src={"/subtitle/" + this.props.mediaId} default/>
+          </video>
+          <h1 className={captionClasses}>{remaining} remaining</h1>
         </div>
 
         <a
-      href="javascript:;"
-      className="controller"
-      onClick={toggleControl}>{hasControl}</a>
+          href="javascript:;"
+          className="controller"
+          onClick={toggleControl}>{hasControl}</a>
 
         <div className="partnerTime">{partnerTime}</div>
 
-        </div>
+      </div>
     )
   }
 })

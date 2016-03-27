@@ -25,6 +25,12 @@
   </div>
 
   <div class="form-group">
+    <%= label f, :vtt_location, class: "control-label" %>
+    <%= text_input f, :vtt_location, class: "form-control" %>
+    <%= error_tag f, :vtt_location %>
+  </div>
+
+  <div class="form-group">
     <%= submit "Submit", class: "btn btn-primary" %>
   </div>
 <% end %>
