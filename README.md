@@ -22,19 +22,17 @@ can go to "http://localhost:4000/video/example". If you scroll down, you'll see 
 controls for Rabbit.
 
 ## Deployment
-You will need `wget` `unzip`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
+You will need `node`, `npm`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
 
-Execute the following commands to download Rabbit into a folder called 'rabbit'.
+Execute the following commands to download Rabbit into a folder called 'rabbit-ex'.
 ```
-wget https://github.com/marvelm/rabbit-ex/archive/master.zip
-unzip master.zip
-rm master.zip
-mv rabbit-ex-master rabbit
-cd rabbit
+git clone https://github.com/marvelm/rabbit-ex
+cd rabbit-ex
 ```
 
 Compile the assets and project and generate the Sqlite database.
 ```
+npm install -g brunch
 npm install
 mix deps.get
 brunch build --production
@@ -48,7 +46,7 @@ You also need to specify the host (or IP address) of your server in `config/prod
 on line 21.
 
 
-To finally run the server:
+You may need sudo to run the server
 ```
 PORT=80 MIX_ENV=prod mix phoenix.server
 ```
@@ -58,28 +56,11 @@ To update run the following script in the parent directory of rabbit. It will do
 the latest source files, keep your config, and migrate the database.
 
 ```
-wget https://github.com/marvelm/rabbit-ex/archive/master.zip
-unzip master.zip
-rm master.zip
-mv rabbit-ex-master rabbit-new
-cp rabbit/rabbit_prod rabbit-new
-rm -rf rabbit-new/config
-cp -r rabbit/config rabbit-new
-cp -r rabbit/.env rabbit-new
-cp -r rabbit/run.sh rabbit-new
-mv rabbit rabbit_backup
-
-mv rabbit-new rabbit
-cd rabbit
+git pull
 npm install
 mix deps.get
 brunch build --production
-source .env
 MIX_ENV=prod mix compile
 MIX_ENV=prod mix phoenix.digest
 MIX_ENV=prod mix ecto.migrate
 ```
-
-## Notes
-
-Check out the `hangout` branch to try the video chat feature
