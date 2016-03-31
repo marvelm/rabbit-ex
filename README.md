@@ -52,8 +52,7 @@ PORT=80 MIX_ENV=prod mix phoenix.server
 ```
 
 ## Update
-To update run the following script in the parent directory of rabbit. It will download
-the latest source files, keep your config, and migrate the database.
+The following script will pull the latest source files, compile, and migrate the database.
 
 ```
 git pull
