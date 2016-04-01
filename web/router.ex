@@ -16,11 +16,8 @@ defmodule Rabbit.Router do
   scope "/", Rabbit do
     pipe_through :browser # Use the default browser stack
 
-    get "/",                    PageController ,    :index
     get "/stream/:stream_id",   StreamController,   :show_stream
     get "/video/:stream_id" ,   VideoController,    :show_video
-    get "/hangout/:stream_id",  HangoutController,  :show
-    get "/live",                LiveController,     :show_live
     get "/subtitle/:stream_id", SubtitleController, :show_subtitle
 
     resources "/files", FileController
