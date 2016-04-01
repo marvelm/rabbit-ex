@@ -8,7 +8,7 @@ defmodule Rabbit.SeriesController do
     render(conn, "series.html")
   end
 
-  def add_files(directory, prefix, content_type) do
+  defp add_files(directory, prefix, content_type) do
     suffix = case content_type do
                "video/webm" -> [".mkv", ".webm"]
                "video/mp4"  -> ".mp4"
@@ -19,7 +19,7 @@ defmodule Rabbit.SeriesController do
       Enum.sort
 
     for {i, f} <- Enum.zip(1..Enum.count(video_files), video_files) do
-      file = %Rabbit.File{
+      file = %Rabbit.File {
         url: "#{prefix}#{i}",
         location: "#{directory}/#{f}",
         content_type: content_type,
@@ -33,9 +33,14 @@ defmodule Rabbit.SeriesController do
                       %{"directory" => directory,
                         "prefix" => prefix,
                          "content_type" => content_type}}) do
-    add_files(directory, prefix, content_type)
-    conn
-    |> put_flash(:info, "Series added succesfully")
-    |> render("series.html")
+    conn =
+      try do
+        add_files(directory, prefix, content_type)
+        put_flash(:info, "Series added successfully")
+      rescue
+        e -> put_flash(:error, e.message)
+      end
+
+    render(conn, "series.html")
   end
 end
