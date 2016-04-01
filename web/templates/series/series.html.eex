@@ -1,0 +1,20 @@
+<div>
+  <%= form_for @conn, "/series", [as: :series], fn f -> %>
+    <div>
+      <label for="directory">Directory</label>
+      <%= text_input f, :directory %>
+    </div>
+
+    <div>
+      <label for="prefix">URL Prefix</label>
+      <%= text_input f, :prefix %>
+    </div>
+
+    <div>
+      <label for="content_type">Content Type</label>
+      <%= text_input f, :content_type %>
+    </div>
+
+    <%= submit "Submit" %>
+  <% end %>
+</div>

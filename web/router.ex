@@ -20,6 +20,9 @@ defmodule Rabbit.Router do
     get "/video/:stream_id" ,   VideoController,    :show_video
     get "/subtitle/:stream_id", SubtitleController, :show_subtitle
 
+    get "/series", SeriesController, :index
+    post "/series", SeriesController, :submit
+
     resources "/files", FileController
   end
 
