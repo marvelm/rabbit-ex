@@ -14,11 +14,9 @@ defmodule Rabbit.SeriesController do
                "video/mp4"  -> ".mp4"
              end
 
-    video_files =
-      EFile.ls!(directory) |>
-      Enum.filter(fn str ->
-        String.ends_with?(str, suffix)
-      end)
+    video_files = EFile.ls!(directory) |>
+      Enum.filter(&(String.ends_with?(&1, suffix))) |>
+      Enum.sort
 
     for {i, f} <- Enum.zip(1..Enum.count(video_files), video_files) do
       file = %Rabbit.File{
