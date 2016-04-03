@@ -36,9 +36,9 @@ defmodule Rabbit.SeriesController do
     conn =
       try do
         add_files(directory, prefix, content_type)
-        put_flash(:info, "Series added successfully")
+        put_flash(conn, :info, "Series added successfully")
       rescue
-        e -> put_flash(:error, e.message)
+        e -> put_flash(conn, :error, e.message)
       end
 
     render(conn, "series.html")

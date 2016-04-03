@@ -14,8 +14,11 @@
   <tbody>
 <%= for file <- @files do %>
     <tr>
-      <td><%= file.url %></td>
-      <td><%= file.location %></td>
+      <td>
+        <a href="/video/<%= file.url %>">
+          <%= file.url %>
+        </a>
+      </td>
       <td><%= file.content_type %></td>
 
       <td class="text-right">
