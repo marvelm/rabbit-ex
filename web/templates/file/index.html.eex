@@ -5,9 +5,7 @@
   <thead>
     <tr>
       <th>Url</th>
-      <th>Location</th>
       <th>Content type</th>
-
       <th></th>
     </tr>
   </thead>
