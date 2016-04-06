@@ -162,7 +162,7 @@ var SynchronizedVideo = React.createClass({
 
         <a
           href="javascript:;"
-          className="controller"
+          className="controller btn btn-large btn-default"
           onClick={toggleControl}>{hasControl}</a>
 
         <div className="partnerTime">{partnerTime}</div>
