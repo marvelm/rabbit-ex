@@ -40,14 +40,3 @@ video#main-video {
   padding-right: 0;
   text-align: right;
 }
-
-.btn {
-  background-color: blue;
-  color: white;
-  /* border: thick; */
-  /* border-width: 1px; */
-}
-
-.btn:hover {
-  color: red;
-}

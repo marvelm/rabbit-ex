@@ -1,20 +1,22 @@
-<div>
+<div class="container">
   <%= form_for @conn, "/series", [as: :series], fn f -> %>
-    <div>
-      <label for="directory">Directory</label>
-      <%= text_input f, :directory %>
+    <div class="form-group">
+      <label for="directory" class="control-label">Directory</label>
+      <%= text_input f, :directory, class: "form-control" %>
     </div>
 
-    <div>
-      <label for="prefix">URL Prefix</label>
-      <%= text_input f, :prefix %>
+    <div class="form-group">
+      <label for="prefix" class="control-label">URL Prefix</label>
+      <%= text_input f, :prefix, class: "form-control" %>
     </div>
 
-    <div>
+    <div class="form-group">
       <label for="content_type">Content Type</label>
-      <%= text_input f, :content_type %>
+      <%= text_input f, :content_type, class: "form-control" %>
     </div>
 
-    <%= submit "Submit" %>
+    <div class="form-group">
+      <%= submit "Submit", class: "btn btn-primary" %>
+    </div>
   <% end %>
 </div>
