@@ -6,7 +6,7 @@ defmodule Rabbit.FileController do
   plug :scrub_params, "file" when action in [:create, :update]
 
   def index(conn, _params) do
-    files = Repo.all(File)
+    files = Repo.all(File) |> Enum.reverse
     render(conn, "index.html", files: files)
   end
 
