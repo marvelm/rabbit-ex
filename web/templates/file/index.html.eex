@@ -1,6 +1,10 @@
 <div class="container">
 <h2>Listing files</h2>
 
+<div class="link new-file">
+  <%= link "Add new file", to: file_path(@conn, :new) %>
+</div>
+
 <table class="table">
   <thead>
     <tr>
@@ -29,5 +33,4 @@
   </tbody>
 </table>
 
-<%= link "New file", to: file_path(@conn, :new) %>
 </div>

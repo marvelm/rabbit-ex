@@ -70,3 +70,7 @@ form.link, form.button {
     border-bottom: 0;
   }
 }
+
+.link.new-file {
+  float: right;
+}
