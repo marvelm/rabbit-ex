@@ -1,143 +1,154 @@
 /* jshint esnext: true */
-import socket from './socket'
+import socket from './socket';
 
 // Add important functions to video element
 export function polyfill(video) {
-  video.requestFullscreen = video.requestFullscreen || video.msRequestFullscreen || video.mozRequestFullScreen || video.webkitRequestFullscreen
-  document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen
+  video.requestFullscreen = video.requestFullscreen || video.msRequestFullscreen || video.mozRequestFullScreen || video.webkitRequestFullscreen;
+  document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
 
   video.togglePlaying = () => {
-    if (video.paused)
-      video.play()
-    else
-      video.pause()
-  }
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
+  };
 
   video.toggleFullScreen = () => {
-    if (document.webkitFullscreenElement)
-      document.exitFullscreen()
-    else
-      video.requestFullscreen()
-  }
+    if (document.webkitFullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      video.requestFullscreen();
+    }
+  };
 
   // Resets the video element
   video.destroy = () => {
-    video.src = ''
-    video.load()
-  }
+    video.src = '';
+    video.load();
+  };
 }
 
 function humanizeSeconds(seconds) {
-  var date = new Date(null)
-    date.setSeconds(seconds)
+  var date = new Date(null);
+  date.setSeconds(seconds);
   // hh:mm:ss
   try {
-    return date.toISOString().substr(11, 8)
+    return date.toISOString().substr(11, 8);
   } catch(e) {
     return '';
   }
 }
 
-import MediaSynchronizer from "web/static/js/media_synchronizer"
+import MediaSynchronizer from "web/static/js/media_synchronizer";
 
 var SynchronizedVideo = React.createClass({
   mixins: [MediaSynchronizer],
 
   componentDidMount() {
-    let video = this.refs.videoElement
-    polyfill(video)
-    this.video = video
+    let video = this.refs.videoElement;
+    polyfill(video);
+    this.video = video;
 
     if (this.state.firstTime) {
-      if (this.state.streamPrefs)
-        video.currentTime = this.state.streamPrefs.lastPosition
-      this.setState({firstTime: false})
+      if (this.state.streamPrefs) {
+        video.currentTime = this.state.streamPrefs.lastPosition;
+      }
+      this.setState({ firstTime: false });
     }
   },
 
   getInitialState: function() {
-    let streamPrefs = window.localStorage.getItem(this.props.mediaId)
+    let streamPrefs = window.localStorage.getItem(this.props.mediaId);
     let state = {
       socket: this.props.socket,
       mediaId: this.props.mediaId
+    };
+    if (streamPrefs) {
+      state.streamPrefs = JSON.parse(streamPrefs);
     }
-    if (streamPrefs)
-      state.streamPrefs = JSON.parse(streamPrefs)
-    return state
+    return state;
   },
 
   currentTime: function() {
-    return this.refs.videoElement.currentTime
+    return this.refs.videoElement.currentTime;
   },
 
   onChannelPlay: function(payload) {
-    this.refs.videoElement.currentTime = payload.currentTime + this.state.latency
-    this.refs.videoElement.play()
+    this.refs.videoElement.currentTime = payload.currentTime + this.state.latency;
+    this.refs.videoElement.play();
   },
 
   onChannelPause: function(payload) {
-    this.refs.videoElement.pause()
-    this.refs.videoElement.currentTime = payload.currentTime
+    this.refs.videoElement.pause();
+    this.refs.videoElement.currentTime = payload.currentTime;
   },
 
   render: function() {
-    let video = this.refs.videoElement
-    let state = this.state
-    let remaining = video ?
-          humanizeSeconds(video.duration - video.currentTime) :
-          humanizeSeconds(0)
+    let video = this.refs.videoElement;
+    let state = this.state;
+    let remaining = video
+          ? humanizeSeconds(video.duration - video.currentTime)
+          : humanizeSeconds(0);
 
-    let partnerTime = state.partnerTime ?
-          humanizeSeconds(state.partnerTime) :
-          "Partner hasn't played yet"
+    let partnerTime = state.partnerTime
+          ? humanizeSeconds(state.partnerTime)
+          : "Partner hasn't played yet";
 
-    let hasControl = state.controlling ? "Give up control" : "Take control"
+    let hasControl = state.controlling
+          ? "Give up control"
+          : "Take control";
 
-    let captionClasses = state.isDisplayingCurrentTime ? "caption" : "hidden"
+    let captionClasses = state.isDisplayingCurrentTime
+          ? "caption"
+          : "hidden";
 
     let toggleControl = (e) => {
-      let controlling = !this.state.controlling
-      if (controlling)
-        this.takeControl()
-      else
-        this.giveUpControl()
-    }
+      let controlling = !this.state.controlling;
+      if (controlling) {
+        this.takeControl();
+      } else {
+        this.giveUpControl();
+      }
+    };
 
     let displayCurrentTime = (e) => {
       if (!this.state.isDisplayingCurrentTime) {
         this.setState({
           isDisplayingCurrentTime: true
-        })
+        });
         window.setTimeout(() => {
           this.setState({
             isDisplayingCurrentTime: false
-          })
-        }, 2000)
+          });
+        }, 2000);
       }
-    }
+    };
 
     let togglePlaying = () => {
-      video.togglePlaying()
-    }
+      video.togglePlaying();
+    };
     let toggleFullScreen = () => {
-      video.toggleFullScreen()
-    }
+      video.toggleFullScreen();
+    };
 
     let onPause = () => {
-      window.localStorage.setItem(this.props.mediaId,
-                                  JSON.stringify({lastPosition: video.currentTime}))
-      this.channelPause()
-    }
+      window.localStorage.setItem(
+        this.props.mediaId,
+        JSON.stringify({ lastPosition: video.currentTime })
+      );
+      this.channelPause();
+    };
     let onTimeUpdate = () => {
-      if (state.controlling && video.paused)
-        this.channelPause()
-    }
-
-    let videoStyle = {}
-    if (this.props.scale)
-      videoStyle = {
-        width: window.innerWidth
+      if (state.controlling && video.paused) {
+        this.channelPause();
       }
+    };
+
+    let videoStyle = {};
+    if (this.props.scale) {
+      videoStyle = { width: window.innerWidth };
+    }
 
     return (
       <div className="synchronized-video">
@@ -166,15 +177,16 @@ var SynchronizedVideo = React.createClass({
           onClick={toggleControl}>{hasControl}</a>
 
         <div className="partnerTime">{partnerTime}</div>
-
       </div>
-    )
+    );
   }
-})
+});
 
-import ReactDOM from 'react-dom'
-import React from 'react'
+import ReactDOM from 'react-dom';
+import React from 'react';
 export function mount(streamId, ele, socket) {
   return ReactDOM.render(
-      <SynchronizedVideo mediaId={streamId} socket={socket} scale/>, ele)
+    <SynchronizedVideo mediaId={streamId} socket={socket} scale/>,
+    ele
+  );
 }
