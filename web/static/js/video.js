@@ -45,19 +45,6 @@ import MediaSynchronizer from "web/static/js/media_synchronizer";
 var SynchronizedVideo = React.createClass({
   mixins: [MediaSynchronizer],
 
-  componentDidMount() {
-    let video = this.refs.videoElement;
-    polyfill(video);
-    this.video = video;
-
-    if (this.state.firstTime) {
-      if (this.state.streamPrefs) {
-        video.currentTime = this.state.streamPrefs.lastPosition;
-      }
-      this.setState({ firstTime: false });
-    }
-  },
-
   getInitialState: function() {
     let streamPrefs = window.localStorage.getItem(this.props.mediaId);
     let state = {
@@ -68,6 +55,16 @@ var SynchronizedVideo = React.createClass({
       state.streamPrefs = JSON.parse(streamPrefs);
     }
     return state;
+  },
+
+  componentDidMount() {
+    let video = this.refs.videoElement;
+    polyfill(video);
+    this.video = video;
+
+    if (this.state.streamPrefs) {
+      video.currentTime = this.state.streamPrefs.lastPosition;
+    }
   },
 
   currentTime: function() {
