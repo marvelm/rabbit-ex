@@ -64,6 +64,7 @@ var SynchronizedVideo = React.createClass({
 
     if (this.state.streamPrefs) {
       video.currentTime = this.state.streamPrefs.lastPosition;
+      video.volume = this.state.streamPrefs.lastVolume;
     }
   },
 
@@ -129,18 +130,31 @@ var SynchronizedVideo = React.createClass({
       video.toggleFullScreen();
     };
 
-    let onPause = () => {
+    const savePrefs = () => {
+      const prefs = JSON.parse(
+        window.localStorage.getItem(this.props.mediaId)
+      );
+
+      prefs.lastPosition = video.currentTime;
+      prefs.lastVolume = video.volume;
+
       window.localStorage.setItem(
         this.props.mediaId,
-        JSON.stringify({ lastPosition: video.currentTime })
+        JSON.stringify(prefs)
       );
+    };
+
+    let onPause = () => {
+      savePrefs();
       this.channelPause();
     };
     let onTimeUpdate = () => {
       if (state.controlling && video.paused) {
         this.channelPause();
       }
+      savePrefs();
     };
+    let onVolumeChange = savePrefs;
 
     let videoStyle = {};
     if (this.props.scale) {
@@ -160,7 +174,8 @@ var SynchronizedVideo = React.createClass({
             onPlaying={this.channelPlay}
             onPlay={this.channelPlay}
             onPause={onPause}
-            onTimeUpdate={onTimeUpdate}>
+            onTimeUpdate={onTimeUpdate}
+            onVolumeChange={onVolumeChange}>
             <source src={"/stream/" + this.props.mediaId}/>
             <track label="English" kind="subtitles" srcLang="en"
               src={"/subtitle/" + this.props.mediaId} default/>
