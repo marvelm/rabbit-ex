@@ -10,5 +10,5 @@ config :rabbit, Rabbit.Endpoint,
 # Configure your database
 config :rabbit, Rabbit.Repo,
   adapter: Sqlite.Ecto,
-  database: "rabbit_prod",
+  database: "data/rabbit_prod",
   pool_size: 20
