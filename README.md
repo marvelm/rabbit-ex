@@ -22,6 +22,16 @@ can go to "http://localhost:4000/video/example". If you scroll down, you'll see 
 controls for Rabbit.
 
 ## Deployment
+### Docker
+```bash
+docker build -t rabbit --rm .
+mkdir -p data/media
+docker run -p 80:4000 -v $PWD/data:/app/data rabbit
+```
+The database will be created in `data`. And it is recommended that you
+put files in `data/media`.
+
+### Manually
 You will need `node`, `npm`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
 
 Execute the following commands to download Rabbit into a folder called 'rabbit-ex'.
@@ -31,7 +41,7 @@ cd rabbit-ex
 ```
 
 Compile the assets and project and generate the Sqlite database.
-```
+```bash
 npm install -g brunch
 npm install
 mix deps.get
