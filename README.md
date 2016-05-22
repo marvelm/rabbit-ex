@@ -24,12 +24,11 @@ controls for Rabbit.
 ## Deployment
 ### Docker
 ```bash
-docker build -t rabbit --rm .
+docker pull marvel/rabbit
 mkdir -p data/media
-docker run -p 80:4000 -v $PWD/data:/app/data rabbit
+docker run -p 80:4000 -v $PWD/data:/app/data marvel/rabbit
 ```
-The database will be created in `data`. And it is recommended that you
-put files in `data/media`.
+The database will be created in `data`.
 
 ### Manually
 You will need `node`, `npm`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
