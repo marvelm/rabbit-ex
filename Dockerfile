@@ -17,5 +17,4 @@ RUN mix compile
 RUN brunch build --production
 RUN mix phoenix.digest
 
-ENV PORT 4000
 CMD mix ecto.migrate && mix phoenix.server
