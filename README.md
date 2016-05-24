@@ -26,49 +26,11 @@ controls for Rabbit.
 ```bash
 docker pull marvel/rabbit
 mkdir -p data/media
-docker run -p 80:4000 -v $PWD/data:/app/data marvel/rabbit
-```
-The database will be created in `data`.
-
-### Manually
-You will need `node`, `npm`, `gcc` (for compiling the Sqlite driver), `erlang`, and `elixir` to be able to deploy.
-
-Execute the following commands to download Rabbit into a folder called 'rabbit-ex'.
-```
-git clone https://github.com/marvelm/rabbit-ex
-cd rabbit-ex
 ```
 
-Compile the assets and project and generate the Sqlite database.
+Create a [configuration file](https://raw.githubusercontent.com/marvelm/rabbit-ex/master/config/prod.secret.exs)
+called `prod.secret.exs` in the `data` directory.
+
 ```bash
-npm install -g brunch
-npm install
-mix deps.get
-brunch build --production
-MIX_ENV=prod mix phoenix.digest
-MIX_ENV=prod mix ecto.migrate
-```
-
-Now you need to configure the secret key. Execute `mix phoenix.gen.secret` to obtain a secret.
-Place the result in the `secret_key_base` field in `config/prod.secret.exs`
-You also need to specify the host (or IP address) of your server in `config/prod.exs`
-on line 21.
-
-
-You may need sudo to run the server
-```
-PORT=80 MIX_ENV=prod mix phoenix.server
-```
-
-## Update
-The following script will pull the latest source files, compile, and migrate the database.
-
-```
-git pull
-npm install
-mix deps.get
-brunch build --production
-MIX_ENV=prod mix compile
-MIX_ENV=prod mix phoenix.digest
-MIX_ENV=prod mix ecto.migrate
+docker run -p 80:4000 -v $PWD/data:/app/data marvel/rabbit
 ```
