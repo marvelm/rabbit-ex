@@ -60,4 +60,6 @@ config :logger, level: :info
 
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
-import_config "../data/prod.secret.exs"
+if File.exists? "../data/prod.secret.exs" do
+  import_config "../data/prod.secret.exs"
+end
