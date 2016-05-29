@@ -23,14 +23,11 @@ controls for Rabbit.
 
 ## Deployment
 ### Docker
+You should modify the `secret_key_base` in `config/prod.secret.exs` before
+building.
+
 ```bash
-docker pull marvel/rabbit
+docker build -t rabbit --rm .
 mkdir -p data/media
-```
-
-Create a [configuration file](https://raw.githubusercontent.com/marvelm/rabbit-ex/master/config/prod.secret.exs)
-called `prod.secret.exs` in the `data` directory.
-
-```bash
-docker run -p 80:4000 -v $PWD/data:/app/data marvel/rabbit
+docker run -p 80:4000 -v $PWD/data:/app/data rabbit
 ```

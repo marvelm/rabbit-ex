@@ -14,7 +14,4 @@ config :rabbit, Rabbit.Repo, [
 
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
-prod_secret = "../data/prod.secret.exs"
-if File.exists? prod_secret do
-  import_config prod_secret
-end
+import "prod.secret.exs"
