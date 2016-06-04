@@ -133,7 +133,7 @@ var SynchronizedVideo = React.createClass({
     const savePrefs = () => {
       const prefs = JSON.parse(
         window.localStorage.getItem(this.props.mediaId)
-      );
+      ) || {};
 
       prefs.lastPosition = video.currentTime;
       prefs.lastVolume = video.volume;
